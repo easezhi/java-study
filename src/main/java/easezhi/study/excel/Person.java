@@ -14,7 +14,8 @@ import easezhi.study.excel.annotation.*;
 @Accessors(chain = true)
 //@ExcelEntity(title = {"姓名","年龄","性别","次数","小数","实数","大数","生日","时间","短日期"}, sheet = "员工",
 //    dateTimeFormat = "yyyy-MM-dd HH:mm:ss")
-@ExcelEntity(title = {"姓名","时间"},
+@ExcelEntity(title = {"姓名","年龄","性别","次数","小数","实数","大数","生日","时间"},
+    sheet = "员工",
     dateTimeFormat = "yyyy-MM-dd HH:mm:ss", simplifyErrorMsg = true)
 public class Person implements ExcelParseEntity {
     @ExcelColumn(value = "姓名", required = true, max = 5)
@@ -41,11 +42,8 @@ public class Person implements ExcelParseEntity {
     @ExcelColumn(value = "生日", width = -1, format = "M月d日")
     private LocalDate birth;
 
-    @ExcelColumn(value = "时间", width = 20)
+    @ExcelColumn(value = "时间", width = 40, align = "center")
     private LocalDateTime time;
-
-    @ExcelColumn(value = "短日期", format = "yyyy年 M月")
-    private LocalDateTime st;
 
     public Person() {
 //        dashu = new BigDecimal("89.12345");

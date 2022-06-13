@@ -1,12 +1,16 @@
 package easezhi.study.excel;
 
 import easezhi.study.excel.annotation.ExcelColumn;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -26,27 +30,49 @@ class ColumnSpec {
 
     Integer width;
 
+    HorizontalAlignment align;
+
     XSSFCellStyle cellStyle;
 
     void init(ExcelColumn colAnno, ExcelBuilder builder) {
         this.colAnno = colAnno;
         if (colAnno.polyfill().length() > 0) polyfill = colAnno.polyfill();
 
-        width = colAnno.width() > 0 ? (Integer) colAnno.width() :
-            colAnno.width() == 0 ? builder.defaultColumnWidth : null;
-//        cellStyle = builder.workbook.createCellStyle();
+        if (colAnno.width() > 0) {
+            width = colAnno.width();
+        } else if (colAnno.width() == 0 && builder.defaultColumnWidth != null) {
+            width = colAnno.value().length() * 2 + 2; // 按汉字字符计算宽度
+            if (width < builder.defaultColumnWidth) width = builder.defaultColumnWidth;
+        }
+
+        switch (colAnno.align()) {
+            case "left": align = HorizontalAlignment.LEFT; break;
+            case "center": align = HorizontalAlignment.CENTER; break;
+            case "right": align = HorizontalAlignment.RIGHT; break;
+        }
+
+        if (align != null) {
+            cellStyle = builder.workbook.createCellStyle();
+            cellStyle.setAlignment(align);
+            cellStyle.setVerticalAlignment(VerticalAlignment.CENTER); // 如果不设置，默认是居下对齐
+        }
     }
 
     void createCell(XSSFRow row, Object doc) throws InvocationTargetException, IllegalAccessException {
-        var rawValue = getter.invoke(doc);
+        var cell = row.createCell(colIndex);
+        if (cellStyle != null) {
+            cell.setCellStyle(cellStyle);
+        }
+
+        Object rawValue = getter.invoke(doc);
         if (rawValue == null) {
             if (polyfill != null) {
-                fillTextCell(row.createCell(colIndex), polyfill);
+                fillTextCell(cell, polyfill);
             }
             return;
         }
 
-        fillCell(row.createCell(colIndex), rawValue);
+        fillCell(cell, rawValue);
     }
 
     void fillCell(XSSFCell cell, Object rawValue) {
@@ -86,12 +112,19 @@ class FloatColumn extends ColumnSpec {
     }
 
     void fillCell(XSSFCell cell, Object rawValue) {
-        double value = ((Number)rawValue).doubleValue();
-        if (format == null) {
-            fillNumericCell(cell, value);
+        BigDecimal dec;
+        if (rawValue instanceof BigDecimal) {
+            dec = (BigDecimal) rawValue;
         } else {
-            var cellValue = String.format(format, value);
-            fillTextCell(cell, cellValue);
+            dec = BigDecimal.valueOf(((Number)rawValue).doubleValue());
+        }
+        if (scale != null) {
+            dec = dec.setScale(scale, RoundingMode.HALF_UP).stripTrailingZeros();
+        }
+        if (dec.scale() == 0) {
+            fillNumericCell(cell, dec.longValue());
+        } else {
+            fillNumericCell(cell, dec.doubleValue());
         }
     }
 }

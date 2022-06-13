@@ -3,11 +3,12 @@ package easezhi.study.excel;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.xssf.usermodel.XSSFFont;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.xssf.usermodel.*;
 
 import easezhi.study.excel.annotation.*;
 import static easezhi.study.excel.ExcelUtil.*;
@@ -18,6 +19,10 @@ public class ExcelBuilder <E> {
 
     String[] titles;
 
+    int titleRowIndex; // 标题所在行，从0开始
+    int dataRowIndex; // 数据所在行
+    boolean freezeTitle;
+
     String sheetName;
 
     ColumnSpec[] columnSpecs;
@@ -26,6 +31,8 @@ public class ExcelBuilder <E> {
     String defaultDateTimeFormat = "yyyy-MM-dd HH:mm";
 
     Integer defaultColumnWidth;
+
+    Integer rowHeight = 16; // 默认行高，单位像素。
 
     public ExcelBuilder<E> init(Class<E> clazz) throws NoSuchMethodException {
         workbook = new XSSFWorkbook();
@@ -36,6 +43,20 @@ public class ExcelBuilder <E> {
         if (excelAnno.dateFormat().length() > 0) defaultDateFormat = excelAnno.dateFormat();
         if (excelAnno.dateTimeFormat().length() > 0) defaultDateTimeFormat = excelAnno.dateTimeFormat();
         if (excelAnno.width() > 0) defaultColumnWidth = excelAnno.width();
+        titleRowIndex = 0; // 如果有其他标题样式，再扩展
+        dataRowIndex = 1;
+        freezeTitle = excelAnno.freezeTitle();
+
+        if (excelAnno.width() > 0) { // 默认列宽
+            defaultColumnWidth = excelAnno.width();
+        } else if (excelAnno.width() < 0) { // 擦除默认列宽
+            defaultColumnWidth = null;
+        }
+        if (excelAnno.rowHeight() > 0) { // 默认行高
+            rowHeight = excelAnno.rowHeight();
+        } else if (excelAnno.rowHeight() < 0) {
+            rowHeight = null;
+        }
 
         columnSpecs = buildColumnSpecs(clazz, titles);
         return this;
@@ -43,23 +64,9 @@ public class ExcelBuilder <E> {
 
     public void build(OutputStream os, List<E> docList) throws Exception {
         var sheet = workbook.createSheet(sheetName);
-        var titleRow = sheet.createRow(0);
+        if (rowHeight != null) sheet.setDefaultRowHeightInPoints(rowHeight);
 
-        var titleFont = workbook.createFont();
-        titleFont.setFontName("黑体");
-        var titleStyle = workbook.createCellStyle();
-        titleStyle.setAlignment(HorizontalAlignment.CENTER);
-        titleStyle.setFont(titleFont);
-        for (int i = 0; i < titles.length; i++) {
-            var cell = titleRow.createCell(i);
-            cell.setCellValue(titles[i]);
-            cell.setCellStyle(titleStyle);
-
-            var colSpec = columnSpecs[i];
-            if (colSpec.width != null) {
-                sheet.setColumnWidth(i, colSpec.width * 256); // 每一个单位是 1/256 个字符宽度
-            }
-        }
+        createTitleRow(sheet);
 
         for (int r = 0; r < docList.size(); r++) {
             var doc = docList.get(r);
@@ -68,7 +75,32 @@ public class ExcelBuilder <E> {
                 spec.createCell(row, doc);
             }
         }
+        System.out.println(LocalDateTime.now());
         workbook.write(os);
+    }
+
+    void createTitleRow(XSSFSheet sheet) {
+        var titleFont = workbook.createFont(); // 标题样式
+        titleFont.setFontName("黑体");
+        var titleStyle = workbook.createCellStyle();
+        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        titleStyle.setFont(titleFont);
+
+        var titleRow = sheet.createRow(titleRowIndex);
+        for (int i = 0; i < titles.length; i++) {
+            var cell = titleRow.createCell(i);
+            cell.setCellValue(titles[i]);
+            cell.setCellStyle(titleStyle);
+
+            var colSpec = columnSpecs[i];
+            if (colSpec.width != null) {
+                sheet.setColumnWidth(i, colSpec.width * 256 + 128); // 每一个单位是 1/256 个字符宽度，再加上 padding 宽度
+            }
+        }
+        if (freezeTitle) {
+            sheet.createFreezePane(0, titleRowIndex + 1);
+        }
     }
 
     ColumnSpec[] buildColumnSpecs(Class clazz, String[] titles) throws NoSuchMethodException {
