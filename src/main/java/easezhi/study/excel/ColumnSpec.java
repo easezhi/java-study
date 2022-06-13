@@ -1,11 +1,7 @@
 package easezhi.study.excel;
 
 import easezhi.study.excel.annotation.ExcelColumn;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.VerticalAlignment;
-import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
-import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.ss.usermodel.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -32,7 +28,7 @@ class ColumnSpec {
 
     HorizontalAlignment align;
 
-    XSSFCellStyle cellStyle;
+    CellStyle cellStyle;
 
     void init(ExcelColumn colAnno, ExcelBuilder builder) {
         this.colAnno = colAnno;
@@ -58,7 +54,7 @@ class ColumnSpec {
         }
     }
 
-    void createCell(XSSFRow row, Object doc) throws InvocationTargetException, IllegalAccessException {
+    void createCell(Row row, Object doc) throws InvocationTargetException, IllegalAccessException {
         var cell = row.createCell(colIndex);
         if (cellStyle != null) {
             cell.setCellStyle(cellStyle);
@@ -75,22 +71,22 @@ class ColumnSpec {
         fillCell(cell, rawValue);
     }
 
-    void fillCell(XSSFCell cell, Object rawValue) {
+    void fillCell(Cell cell, Object rawValue) {
         cell.setCellValue(rawValue.toString());
     }
 
-    final void fillTextCell(XSSFCell cell, String value) {
+    final void fillTextCell(Cell cell, String value) {
         cell.setCellValue(value);
     }
 
-    final void fillNumericCell(XSSFCell cell, double value) {
+    final void fillNumericCell(Cell cell, double value) {
         cell.setCellValue(value);
     }
 }
 
 class IntegerColumn extends ColumnSpec {
 
-    void fillCell(XSSFCell cell, Object rawValue) {
+    void fillCell(Cell cell, Object rawValue) {
 
         fillNumericCell(cell, ((Number)rawValue).longValue());
     }
@@ -111,7 +107,7 @@ class FloatColumn extends ColumnSpec {
         }
     }
 
-    void fillCell(XSSFCell cell, Object rawValue) {
+    void fillCell(Cell cell, Object rawValue) {
         BigDecimal dec;
         if (rawValue instanceof BigDecimal) {
             dec = (BigDecimal) rawValue;
@@ -138,7 +134,7 @@ class CommonDateColumn extends ColumnSpec {
 }
 
 class LocalDateColumn extends CommonDateColumn {
-    void fillCell(XSSFCell cell, Object rawValue) {
+    void fillCell(Cell cell, Object rawValue) {
         var value = (LocalDate)rawValue;
         var cellValue = formatter.formatDate(value);
         fillTextCell(cell, cellValue);
@@ -146,7 +142,7 @@ class LocalDateColumn extends CommonDateColumn {
 }
 
 class LocalDateTimeColumn extends CommonDateColumn {
-    void fillCell(XSSFCell cell, Object rawValue) {
+    void fillCell(Cell cell, Object rawValue) {
         var value = (LocalDateTime)rawValue;
         var cellValue = formatter.formatDate(value);
         fillTextCell(cell, cellValue);

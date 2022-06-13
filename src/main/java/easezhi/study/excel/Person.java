@@ -15,7 +15,7 @@ import easezhi.study.excel.annotation.*;
 //@ExcelEntity(title = {"姓名","年龄","性别","次数","小数","实数","大数","生日","时间","短日期"}, sheet = "员工",
 //    dateTimeFormat = "yyyy-MM-dd HH:mm:ss")
 @ExcelEntity(title = {"姓名","年龄","性别","次数","小数","实数","大数","生日","时间"},
-    sheet = "员工",
+    sheet = "员工", freezeTitle = true,
     dateTimeFormat = "yyyy-MM-dd HH:mm:ss", simplifyErrorMsg = true)
 public class Person implements ExcelParseEntity {
     @ExcelColumn(value = "姓名", required = true, max = 5)

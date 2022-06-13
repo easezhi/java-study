@@ -7,15 +7,18 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
-import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import easezhi.study.excel.annotation.*;
 import static easezhi.study.excel.ExcelUtil.*;
 
 public class ExcelBuilder <E> {
 
-    XSSFWorkbook workbook;
+    Workbook workbook;
 
     String[] titles;
 
@@ -35,7 +38,7 @@ public class ExcelBuilder <E> {
     Integer rowHeight = 16; // 默认行高，单位像素。
 
     public ExcelBuilder<E> init(Class<E> clazz) throws NoSuchMethodException {
-        workbook = new XSSFWorkbook();
+        workbook = new SXSSFWorkbook();
 
         var excelAnno = clazz.getAnnotation(ExcelEntity.class);
         sheetName = excelAnno.sheet();
@@ -70,7 +73,7 @@ public class ExcelBuilder <E> {
 
         for (int r = 0; r < docList.size(); r++) {
             var doc = docList.get(r);
-            var row = sheet.createRow(r + 1);
+            var row = sheet.createRow(r + dataRowIndex);
             for (var spec: columnSpecs) {
                 spec.createCell(row, doc);
             }
@@ -79,7 +82,7 @@ public class ExcelBuilder <E> {
         workbook.write(os);
     }
 
-    void createTitleRow(XSSFSheet sheet) {
+    void createTitleRow(Sheet sheet) {
         var titleFont = workbook.createFont(); // 标题样式
         titleFont.setFontName("黑体");
         var titleStyle = workbook.createCellStyle();
