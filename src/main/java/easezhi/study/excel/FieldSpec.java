@@ -8,6 +8,7 @@ import static easezhi.study.excel.ExcelUtil.*;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.util.NumberToTextConverter;
 
 import static org.apache.poi.ss.usermodel.CellType.*;
 
@@ -117,8 +118,7 @@ class StringBuilder extends FieldBuilder {
         if (cellIsString(cell)) {
             value = cell.getStringCellValue().trim();
         } else if (cellIsNumeric(cell)) {
-            // 数字单元格，直接 double 转 String，会有 .0 后缀
-            value = BigDecimal.valueOf(cell.getNumericCellValue()).stripTrailingZeros().toPlainString();
+            value = NumberToTextConverter.toText(cell.getNumericCellValue()); // 数字单元格最多15位有效数字
         }
         if (strEmpty(value)) {
             value = null; // 用户没有编辑单元格、单元格内容是空白字符，统一按 null 处理

@@ -34,7 +34,11 @@ public class ExcelParser <E extends ExcelParseEntity> {
 
     String defaultDateFormat = "yyyy-M-d";
 
-    public ExcelParser<E> init(Class<E> clazz) throws Exception {
+    public static <E extends ExcelParseEntity> ExcelParser<E> parser(Class<E> clazz) throws Exception {
+        return new ExcelParser<E>().init(clazz);
+    }
+
+    ExcelParser<E> init(Class<E> clazz) throws Exception {
         this.clazz = clazz;
         constructor = clazz.getConstructor();
         var excelAnno = clazz.getAnnotation(ExcelEntity.class);

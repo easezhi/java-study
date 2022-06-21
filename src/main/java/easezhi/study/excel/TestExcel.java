@@ -16,22 +16,22 @@ import java.util.Map;
 
 public class TestExcel {
     public static void main( String[] args ) throws Exception {
-//        importPerson();
-        exportPerson();
+        importPerson();
+//        exportPerson();
     }
 
     static void importPerson() throws Exception {
         Map<ExcelColumnError.ErrorType, String> errorMap = new HashMap<>();
         errorMap.put(ExcelColumnError.ErrorType.REQUIRE, "必输");
-        var file = "C:\\Users\\easezhi\\Downloads\\导出.xlsx";
-        var parser = new ExcelParser<Person>().init(Person.class).setErrorMap(errorMap);
+        var file = "C:\\Users\\easezhi\\Downloads\\员工导入.xlsx";
+        var parser = ExcelParser.parser(Person.class).setErrorMap(errorMap);
         var pers = parser.parse(new FileInputStream(file));
         var json = JSON.toJSON(pers);
         System.out.println(json);
     }
 
     static void exportPerson() throws Exception {
-        int total = 5;
+        int total = 10000;
         List<Person> pers = new ArrayList<>(total);
         LocalDate d = LocalDate.now();
         LocalDateTime dt = LocalDateTime.now();
