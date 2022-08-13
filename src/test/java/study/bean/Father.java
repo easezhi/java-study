@@ -4,6 +4,8 @@ public class Father {
     public String name = "父";
     public int age = 50;
 
+    public String surname; // 子类没有重写
+
     public int howOld() {
         return age;
     }

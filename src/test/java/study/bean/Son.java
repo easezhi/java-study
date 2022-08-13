@@ -1,6 +1,8 @@
 package study.bean;
 
 public class Son extends Father {
+    private String sonPrivate;
+    String sonPackage;
     public String name = "子";
     public int age = 23;
 
