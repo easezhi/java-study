@@ -3,8 +3,17 @@ package study.bean;
 public class Son extends Father {
     private String sonPrivate;
     String sonPackage;
-    public String name = "子";
-    public int age = 23;
+
+    public Son() {
+        name = "子";
+        age = 23;
+    }
+
+    public String covered; // 覆盖了基类的同名字段
+    public String getCovered() {
+        return covered;
+    }
+
 
     public String who() {
         return "Son";

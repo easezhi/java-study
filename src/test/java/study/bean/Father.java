@@ -2,9 +2,16 @@ package study.bean;
 
 public class Father {
     public String name = "父";
+    public String surname;
     public int age = 50;
 
-    public String surname; // 子类没有重写
+    public String covered = "Father covered"; // 会被子类覆盖
+    public String getCovered() {
+        return covered;
+    }
+    public String getCoveredByFather() {
+        return covered;
+    }
 
     public int howOld() {
         return age;

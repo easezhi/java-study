@@ -1,0 +1,19 @@
+{
+  "title":"xx",
+  "persons": [
+    {
+      "name": "02232AGC",
+      "productConfName": "FusionModule",
+      "SEX": "男",
+      "age": 22,
+      "birth":"2022-02-2"
+    },
+    {
+      "name": "33010445",
+      "productConfName": "FusionModule",
+      "solutionPart": "",
+      "sex": "女",
+      "age": 11
+    }
+  ]
+}

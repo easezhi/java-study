@@ -28,7 +28,7 @@ public class InheritTest {
 
         System.out.println("静态方法可以被继承");
         Grandson.whoAmI();
-        System.out.println("通过实例对象调用静态方法，根据引用类型(非实际类型)调用");
+        System.out.println("通过实例对象调用静态方法，静态绑定，根据引用类型(非实际类型)调用");
         fap.whoAmI();
         sonp.whoAmI();
     }
@@ -52,17 +52,18 @@ public class InheritTest {
 
     @Test
     public void testFieldInherit() {
-        // 子类重写了基类的字段
+        // 子类重写了基类的字段，字段也是静态绑定
         Father fap = son;
-        fap.age = 2;
-        son.age = 3;
+        fap.covered = "f";
+        son.covered = "s";
         System.out.println("基类引用读取基类字段，子类引用读取重写的字段");
-        System.out.println(fap.age); // 2
-        System.out.println(son.age); // 3
+        System.out.println(fap.covered); // f
+        System.out.println(son.covered); // s
         // 所以才提倡使用getter方法，而不直接使用字段
         System.out.println("方法执行哪个类定义的版本，就读取哪个类定义的字段");
-        System.out.println(fap.howOld()); // 2
-        System.out.println(son.howOld()); // 2
-        System.out.println(son.getAge()); // 3
+        System.out.println(fap.getCovered()); // s。基类引用执行子类重写的方法
+        System.out.println(son.getCovered()); // s
+        System.out.println("子类调用继承来的方法，读取基类定义的字段");
+        System.out.println(son.getCoveredByFather()); // f
     }
 }
