@@ -1,6 +1,6 @@
 package easezhi.study.excel;
 
-import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson2.JSON;
 import org.apache.poi.ss.util.*;
 
 import java.io.FileInputStream;
