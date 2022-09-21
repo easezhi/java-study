@@ -5,10 +5,12 @@ import com.alibaba.fastjson2.annotation.JSONField;
 import easezhi.study.io.FileUtil;
 import lombok.Data;
 import org.junit.Test;
+import study.sede.model.PersonGenericDto;
 import study.sede.model.PersonListDto;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
+
+import static org.junit.Assert.*;
 
 public class FastjsonTest {
     @Test
@@ -23,15 +25,33 @@ public class FastjsonTest {
     @Test
     public void testJson() {
         String jsonStr = """
-            {"dd":"2022-09-16T03:09:38.753"}
+            {"dz":"2022-06-21T06:21:10.862Z"}
             """;
         TmpModel model = JSON.parseObject(jsonStr, TmpModel.class);
         System.out.println(model);
+        System.out.println(model.getDz());
+        System.out.println(model.getDz().withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
+//        System.out.println(model.getDoff().toLocalDateTime());
+    }
+
+    @Test
+    public void testGeneric() {
+        var jsonStr = """
+            {"one":{"name":"张三"}, "beanList":[{"name":"李四"}]}
+            """;
+        var model = JSON.parseObject(jsonStr, PersonGenericDto.class);
+        System.out.println("嵌套的泛型类型也能反序列化");
+        assertEquals(model.getOne().getName(), "张三");
+        assertEquals(model.getBeanList().get(0).getName(), "李四");
     }
 }
 
 @Data
-class TmpModel {
+class TmpModel{
     @JSONField(format = "yyyy-MM-ddTHH:mm:ss.sss")
     LocalDateTime dd;
+
+    ZonedDateTime dz;
+
+//    OffsetDateTime doff;
 }
