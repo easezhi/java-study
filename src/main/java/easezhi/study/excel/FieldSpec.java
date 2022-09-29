@@ -15,6 +15,7 @@ import static org.apache.poi.ss.usermodel.CellType.*;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -318,6 +319,75 @@ class BigDecimalBuild extends DoubleBuild {
     void setBean() throws Exception {
         if (value != null) {
             spec.setter.invoke(bean, BigDecimal.valueOf(value));
+        }
+    }
+}
+
+// todo 优化
+class LocalDateField extends FieldSpec {
+
+    DateTimeFormatter formatter;
+
+    void init(ExcelColumn colAnno, ExcelParser parser) {
+        super.init(colAnno, parser);
+        formatter = new DateTimeFormatterBuilder()
+            .append(DateTimeFormatter.ofPattern(format))
+            .toFormatter();
+    }
+
+    FieldBuilder newBuilder() {
+        return new LocalDateBuild(this);
+    }
+}
+
+class LocalDateBuild extends FieldBuilder {
+
+    LocalDateField spec;
+
+    LocalDate value;
+
+    LocalDateBuild(LocalDateField spec) {
+        this.spec = spec;
+    }
+
+
+    LocalDate parseCell() throws Exception {
+        getCellValue();
+        setBean();
+        return value;
+    }
+
+    void getCellValue() {
+        if (cellIsNumeric(cell)) {
+            if (DateUtil.isCellDateFormatted(cell)) {
+                if (cell.getNumericCellValue() >= 2958466) { // 日期达到 10000/1/1
+                    addError(DATE_FORMAT_STRING);
+                    return;
+                }
+                value = cell.getLocalDateTimeCellValue().toLocalDate();
+            } else {
+                addError(DATE_FORMAT_STRING);
+                return;
+            }
+        } else if (cellIsString(cell)) {
+            var str = cell.getStringCellValue().trim();
+            if (str.length() > 0) {
+                try {
+                    value = LocalDate.parse(str, spec.formatter);
+                } catch (DateTimeParseException e) {
+                    addError(DATE_FORMAT_STRING); // 字符串格式有误
+                    return;
+                }
+            }
+        }
+        if (spec.required && value == null) {
+            addError(REQUIRE);
+        }
+    }
+
+    void setBean() throws Exception {
+        if (value != null) {
+            spec.setter.invoke(bean, value);
         }
     }
 }

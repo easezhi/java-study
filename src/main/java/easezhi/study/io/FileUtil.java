@@ -33,4 +33,15 @@ public class FileUtil {
             e.printStackTrace();
         }
     }
+
+    public static void writeLinesToFile(String filePath, List<String> lines) {
+        try (var os = new FileWriter(filePath)) {
+            for (var line: lines) {
+                os.write(line);
+                os.write("\n");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

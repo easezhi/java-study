@@ -139,7 +139,7 @@ public class ExcelParser <E extends ExcelParseEntity> {
             case "java.math.BigDecimal":
             case "java.lang.Float":
             case "java.lang.Double": spec = new DoubleField(); break;
-//            case "java.time.LocalDate": spec = buildDateColumn(colAnno); break;
+            case "java.time.LocalDate": spec = new LocalDateField(); break;
             case "java.time.LocalDateTime": spec = new LocalDateTimeField(); break;
             default: spec = new FieldSpec();
         }
