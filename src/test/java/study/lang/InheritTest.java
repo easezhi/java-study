@@ -51,6 +51,30 @@ public class InheritTest {
     }
 
     @Test
+    public void testPerformance() {
+        var N = 500000000;
+        var son = new Son();
+        Father fa = son;
+        Who who = son;
+        fa.who();
+        who.who();
+        // 理论上用接口调用方法比用类调用方法要慢。但是不明显
+        var t1 = System.currentTimeMillis();
+        for (var i = 0; i < N; i++) {
+            fa.who();
+        }
+        var d1 = System.currentTimeMillis() - t1;
+        System.out.println("父类引用动态分配：" + d1);
+
+        var t2 = System.currentTimeMillis();
+        for (var i = 0; i < N; i++) {
+            who.who();
+        }
+        var d2 = System.currentTimeMillis() - t2;
+        System.out.println("接口引用动态分配：" + d2);
+    }
+
+    @Test
     public void testFieldInherit() {
         // 子类重写了基类的字段，字段也是静态绑定
         Father fap = son;

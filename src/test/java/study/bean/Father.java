@@ -1,6 +1,6 @@
 package study.bean;
 
-public class Father {
+public class Father implements Who {
     public String name = "父";
     public String surname;
     public int age = 50;

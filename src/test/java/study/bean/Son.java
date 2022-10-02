@@ -26,4 +26,14 @@ public class Son extends Father {
     public int getAge() {
         return age;
     }
+
+    private String privateMethod() {
+        return "privateMethod";
+    }
+
+    String defaultMethod() {
+        return "defaultMethod";
+    }
+
+
 }
