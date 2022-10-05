@@ -13,9 +13,9 @@ public class ConcurrentControl {
         return Executors.newCachedThreadPool();
     }
 
-    public static <T> void parallelLimit(List<T> dataList, Consumer<T> task, int limit) throws InterruptedException {
+    public static <T> void eachLimit(List<T> dataList, int limit, Consumer<T> iteratee) throws InterruptedException {
         var executor = getExecutor();
-        new ParallelLimiter<>(executor, dataList, task, limit).start();
+        new ParallelLimiter<>(executor, dataList, limit, iteratee).start();
     }
 }
 
@@ -34,7 +34,7 @@ class ParallelLimiter<E> {
 
     AtomicInteger cursor;
 
-    ParallelLimiter(ExecutorService executor, List<E> eles, Consumer<E> task, int limit) {
+    ParallelLimiter(ExecutorService executor, List<E> eles, int limit, Consumer<E> task) {
         this.executor = executor;
         this.eles = eles;
         this.task = task;
