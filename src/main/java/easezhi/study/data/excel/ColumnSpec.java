@@ -1,6 +1,6 @@
-package easezhi.study.excel;
+package easezhi.study.data.excel;
 
-import easezhi.study.excel.annotation.ExcelColumn;
+import easezhi.study.data.excel.annotation.ExcelColumn;
 import org.apache.poi.ss.usermodel.*;
 
 import java.lang.reflect.InvocationTargetException;

@@ -1,17 +1,15 @@
-package easezhi.study.excel;
+package easezhi.study.data.excel;
 
+import easezhi.study.data.excel.annotation.ExcelEntity;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.*;
-
-import easezhi.study.excel.annotation.ExcelColumn;
-import easezhi.study.excel.annotation.ExcelEntity;
-import easezhi.study.excel.ExcelColumnError.ErrorType;
-import static easezhi.study.excel.ExcelUtil.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class ExcelParser <E extends ExcelParseEntity> {
 
@@ -28,7 +26,7 @@ public class ExcelParser <E extends ExcelParseEntity> {
 
     FieldSpec[] fieldSpecs;
 
-    Map<ErrorType, String> errorMap;
+    Map<ExcelColumnError.ErrorType, String> errorMap;
 
     boolean simplifyErrorMsg;
 
@@ -57,7 +55,7 @@ public class ExcelParser <E extends ExcelParseEntity> {
         return this;
     }
 
-    public ExcelParser<E> setErrorMap(Map<ErrorType, String> errorMap) {
+    public ExcelParser<E> setErrorMap(Map<ExcelColumnError.ErrorType, String> errorMap) {
         this.errorMap = errorMap;
         return this;
     }
@@ -82,6 +80,8 @@ public class ExcelParser <E extends ExcelParseEntity> {
                 beanError = new ExcelBeanError();
                 bean.setExcelBeanError(beanError);
             }
+
+            // 如果所有字段都是 null，视为空行
             boolean rowEmpty = true;
             for (var spec: fieldSpecs) {
                 var cell = row.getCell(spec.colIndex);
@@ -104,8 +104,9 @@ public class ExcelParser <E extends ExcelParseEntity> {
             }
         }
 
+        // 删掉最后的空行
         if (lastEmptyRows > 0) {
-            beans.subList(beans.size() - lastEmptyRows, beans.size()).clear(); // 删掉最后的空行
+            beans.subList(beans.size() - lastEmptyRows, beans.size()).clear();
         }
 
         return beans;
@@ -119,35 +120,10 @@ public class ExcelParser <E extends ExcelParseEntity> {
             var field = fieldMap.get(title);
             if (field == null) continue;
 
-            var spec = buildFieldSpec(clazz, field);
+            var spec = FieldSpec.genFieldSpec(clazz, field);
             spec.colIndex = i;
             specs.add(spec);
         }
         return specs.toArray(new FieldSpec[]{});
-    }
-
-    FieldSpec buildFieldSpec(Class clazz, Field field) throws NoSuchMethodException {
-        ExcelColumn colAnno = field.getAnnotation(ExcelColumn.class);
-        var fieldName = field.getName();
-        var fieldType = field.getType();
-        var setter = clazz.getMethod(setterName(fieldName), fieldType);
-        FieldSpec spec;
-        switch (fieldType.getName()) {
-            case "java.lang.String": spec = new StringField(); break;
-            case "java.lang.Integer":
-            case "java.lang.Long":  spec = new IntegerField(); break;
-            case "java.math.BigDecimal":
-            case "java.lang.Float":
-            case "java.lang.Double": spec = new DoubleField(); break;
-            case "java.time.LocalDate": spec = new LocalDateField(); break;
-            case "java.time.LocalDateTime": spec = new LocalDateTimeField(); break;
-            default: spec = new FieldSpec();
-        }
-        spec.setter = setter;
-        spec.fieldName = fieldName;
-        spec.fieldType = fieldType;
-        spec.title = colAnno.value();
-        spec.init(colAnno, this);
-        return spec;
     }
 }

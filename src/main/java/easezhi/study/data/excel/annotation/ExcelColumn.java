@@ -1,4 +1,4 @@
-package easezhi.study.excel.annotation;
+package easezhi.study.data.excel.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -7,6 +7,7 @@ import java.lang.annotation.RetentionPolicy;
 public @interface ExcelColumn {
     String value();
 
+    // 日期类字段：单独指定该字段解析、格式化的模式
     String format() default "";
 
     String column() default "";

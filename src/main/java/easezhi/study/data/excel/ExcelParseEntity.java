@@ -1,4 +1,4 @@
-package easezhi.study.excel;
+package easezhi.study.data.excel;
 
 public interface ExcelParseEntity {
 

@@ -1,6 +1,4 @@
-package easezhi.study.excel;
-
-import easezhi.study.excel.FieldSpec;
+package easezhi.study.data.excel;
 
 public class ExcelColumnError {
     public enum ErrorType {
