@@ -1,7 +1,7 @@
 package study.cnbm;
 
 import easezhi.study.data.db.SqlUtil;
-import easezhi.study.excel.ExcelParser;
+import easezhi.study.data.excel.ExcelParser;
 import easezhi.study.io.FileUtil;
 import org.junit.Test;
 import study.cnbm.bean.SalesOrder;

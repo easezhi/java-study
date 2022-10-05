@@ -1,8 +1,8 @@
 package study.cnbm.bean;
 
-import easezhi.study.excel.ExcelParseEntity;
-import easezhi.study.excel.annotation.ExcelColumn;
-import easezhi.study.excel.annotation.ExcelEntity;
+import easezhi.study.data.excel.ExcelParseEntity;
+import easezhi.study.data.excel.annotation.ExcelColumn;
+import easezhi.study.data.excel.annotation.ExcelEntity;
 import lombok.Data;
 
 import java.time.LocalDate;
