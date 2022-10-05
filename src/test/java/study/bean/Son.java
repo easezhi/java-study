@@ -1,5 +1,8 @@
 package study.bean;
 
+import lombok.Getter;
+import lombok.Setter;
+
 public class Son extends Father {
     private String sonPrivate;
     String sonPackage;
@@ -16,7 +19,7 @@ public class Son extends Father {
 
 
     public String who() {
-        return "Son";
+        return "Son: " + name;
     }
 
     public static void whoAmI() {
@@ -35,5 +38,13 @@ public class Son extends Father {
         return "defaultMethod";
     }
 
+    @Getter
+    @Setter
+    Son sibling;
 
+    public Son genSibling() {
+        var bro = new Son();
+        bro.name = "弟";
+        return bro;
+    }
 }

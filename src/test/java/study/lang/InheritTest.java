@@ -34,6 +34,18 @@ public class InheritTest {
     }
 
     @Test
+    public void testOverride() {
+        Father s1 = new Son();
+        Son s2 = new Son();
+        // 子类重写父类同名变量，但是扩展了变量类型（子类），不能简单视为“重写”，getter setter 函数也不是简单的重写，而已经被重载了
+        s1.setSibling(s1.genSibling()); // 虽然生成的 sibling 是 Son 类型，但是引用类型是 Father，所以调用的基类的 setSibling 版本
+        s2.setSibling(s2.genSibling());
+        System.out.println(s1.getSibling()); // 子类“重写”的 sibling 没有被赋上值
+        System.out.println(s1.getMySibling().who()); // 值被赋到了父类的 sibling 字段上
+        System.out.println(s2.getSibling().who());
+    }
+
+    @Test
     public void testMethodReference() {
         Function<Father, String> who = Father::who;
         // 方法引用应该是保存着方法签名(方法表偏移)等信息，而不是直接保存函数指针

@@ -54,7 +54,7 @@ public class ReflectTest {
         var clazz = InnerClass.class;
         var inst = new InnerClass();
         System.out.println("禁用访问控制检查，可以提高反射方法调用的性能");
-        
+
         var pckMethod = clazz.getDeclaredMethod("getPackageMsg");
         var t1 = System.currentTimeMillis();
         for (var i = 0; i < N; i++) {
