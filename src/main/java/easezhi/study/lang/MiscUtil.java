@@ -9,4 +9,9 @@ public class MiscUtil {
             throw new RuntimeException(e);
         }
     }
+
+    public static void waitSecond(double s) {
+        var ms = Math.round(s * 1000);
+        waitMillis(ms);
+    }
 }
