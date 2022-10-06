@@ -40,9 +40,20 @@ public class LambdaTest {
 
     @Test
     public void testPerformance() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        var N = 100000000;
+        var N = 1000000000;
         var clazz = InnerClass.class;
         var inst = new InnerClass();
+
+        var pckMethod = clazz.getDeclaredMethod("getPackageMsg");
+        pckMethod.setAccessible(true);
+        Function<InnerClass, String> fun = InnerClass::getPackageMsg;
+
+        // 预热？
+        for (var i = 0; i < 1000; i++) {
+            inst.getPackageMsg();
+            pckMethod.invoke(inst);
+            fun.apply(inst);
+        }
 
         var t1 = System.currentTimeMillis();
         for (var i = 0; i < N; i++) {
@@ -50,15 +61,12 @@ public class LambdaTest {
         }
         System.out.println("直接调用实例方法：" + (System.currentTimeMillis() - t1));
 
-        var pckMethod = clazz.getDeclaredMethod("getPackageMsg");
-        pckMethod.setAccessible(true);
         var t2 = System.currentTimeMillis();
         for (var i = 0; i < N; i++) {
             pckMethod.invoke(inst);
         }
         System.out.println("调用反射方法：" + (System.currentTimeMillis() - t2));
 
-        Function<InnerClass, String> fun = InnerClass::getPackageMsg;
         var t3 = System.currentTimeMillis();
         for (var i = 0; i < N; i++) {
             fun.apply(inst);

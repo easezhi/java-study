@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 public class TestConcurrentControl {
     @Test
-    public void testParallelLimit() throws Exception {
+    public void testEachLimit() throws Exception {
         var total = 8;
         var limit = 5;
         var workers = new ArrayList<Worker>();
@@ -23,7 +23,7 @@ public class TestConcurrentControl {
     }
 
     @Test
-    public void testMap() throws Exception {
+    public void testMapLimit() throws Exception {
         var total = 7;
         var limit = 5;
         var workers = new ArrayList<Worker>();
@@ -31,7 +31,7 @@ public class TestConcurrentControl {
             workers.add(new Worker(i, Math.random() * 2 + 1));
         }
         var t = System.currentTimeMillis();
-        var rst = new MapLimit<Worker, Worker>(workers, limit, TestConcurrentControl::runMap).start();
+        var rst = ConcurrentControl.mapLimit(workers, limit, TestConcurrentControl::runMap);
         System.out.println("所有任务结束 " + (System.currentTimeMillis() - t));
         System.out.println(rst.stream().map(e -> e.due).collect(Collectors.toList()));
     }
