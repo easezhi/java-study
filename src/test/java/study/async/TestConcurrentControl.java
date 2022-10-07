@@ -23,21 +23,24 @@ public class TestConcurrentControl {
     }
 
     @Test
-    public void testMapLimit() throws Exception {
+    public void testMapLimit() {
         var total = 7;
-        var limit = 5;
+        var limit = 4;
         var workers = new ArrayList<Worker>();
         for (var i = 0; i < total; i++) {
             workers.add(new Worker(i, Math.random() * 2 + 1));
         }
         var t = System.currentTimeMillis();
-        var rst = ConcurrentControl.mapLimit(workers, limit, TestConcurrentControl::runMap);
+        var rst = ConcurrentControl.mapLimit(workers, limit, TestConcurrentControl::runMap, true);
         System.out.println("所有任务结束 " + (System.currentTimeMillis() - t));
-        System.out.println(rst.stream().map(e -> e.due).collect(Collectors.toList()));
+        System.out.println(rst.stream().map(e -> (e == null ? null : e.due)).collect(Collectors.toList()));
     }
 
     static Worker runMap(Worker e) {
         System.out.printf("task %d start %f\n", e.index, e.due);
+        if (e.index == 2) {
+            throw new RuntimeException("终止");
+        }
         MiscUtil.waitSecond(e.due);
         System.out.printf("----task %d finish %f\n", e.index, e.due);
         return e;
