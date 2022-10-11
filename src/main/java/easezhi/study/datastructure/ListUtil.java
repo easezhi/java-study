@@ -57,4 +57,15 @@ public class ListUtil {
 
         return rst;
     }
+
+    public static <T> List<List<T>> partition(List<T> beanList, int batch) {
+        var batchList = new ArrayList<List<T>>();
+        int total = beanList.size();
+        for (int i = 0; i < total; i += batch) {
+            int j = i + batch;
+            if (j > total) j = total;
+            batchList.add(beanList.subList(i, j));
+        }
+        return batchList;
+    }
 }
