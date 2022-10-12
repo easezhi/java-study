@@ -16,6 +16,7 @@ public class GenSqlTest {
         var dictIdSql = """
             (SELECT dict_id FROM public.sys_dict WHERE "name"='dictName')""".replaceAll("dictName", dictName);
         var dictSql = """
+            -- dictDesc字典
             DELETE FROM public.sys_dict_detail WHERE dict_id = dictIdSql;
             DELETE FROM public.sys_dict WHERE "name" = 'dictName';
 
