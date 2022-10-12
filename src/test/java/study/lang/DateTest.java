@@ -18,4 +18,15 @@ public class DateTest {
         // u: year 和 y: year-of-era 的区别
         // 区别在于对公元前纪年的表示法，具体未知。
     }
+
+    @Test
+    public void testCompare() {
+        // 日期比较
+        var d1 = LocalDate.parse("2022-10-12");
+        var d2 = LocalDate.of(2022, 10, 12);
+        System.out.println(d2.compareTo(d1));
+        System.out.println(d2.equals(d1));
+        System.out.println(d2.equals(null));
+//        System.out.println(d2.compareTo(null)); // 不能是 null
+    }
 }
