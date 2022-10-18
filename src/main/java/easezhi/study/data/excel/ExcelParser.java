@@ -4,6 +4,9 @@ import easezhi.study.data.excel.annotation.ExcelEntity;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -58,6 +61,14 @@ public class ExcelParser <E extends ExcelParseEntity> {
     public ExcelParser<E> setErrorMap(Map<ExcelColumnError.ErrorType, String> errorMap) {
         this.errorMap = errorMap;
         return this;
+    }
+
+    public List<E> parseExcelFile(String filePath) {
+        try (var is = new FileInputStream(filePath)) {
+            return parse(is);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public List<E> parse(InputStream is) throws Exception {

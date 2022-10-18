@@ -2,6 +2,9 @@ package study.cnbm.dict;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.annotation.JSONField;
+import easezhi.study.data.excel.ExcelParseEntity;
+import easezhi.study.data.excel.annotation.ExcelColumn;
+import easezhi.study.data.excel.annotation.ExcelEntity;
 import easezhi.study.io.FileUtil;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,10 +15,13 @@ import java.util.Map;
 
 @Data
 @NoArgsConstructor
-public class DictDetail {
-    String label;
-
+@ExcelEntity(title = {"编号", "描述"})
+public class DictDetail implements ExcelParseEntity {
+    @ExcelColumn("编号")
     String value;
+
+    @ExcelColumn("描述")
+    String label;
 
     public DictDetail(String value, String label) {
         this.value = value;
