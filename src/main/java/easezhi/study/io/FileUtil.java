@@ -2,18 +2,17 @@ package easezhi.study.io;
 
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 public class FileUtil {
     public static String readFileToString(String filePath) {
         try {
-            var is = new FileInputStream(filePath);
-            var text = IOStreamUtil.readStreamToStr(is);
-            is.close();
-            return text;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
+            return new String(Files.readAllBytes(Path.of(filePath)));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
