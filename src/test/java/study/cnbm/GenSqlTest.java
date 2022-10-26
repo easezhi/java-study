@@ -37,11 +37,11 @@ public class GenSqlTest {
     // 修改表结构时，把字段注释写在行尾，然后生成pgsql的字段注释语句
     @Test
     public void genPgsqlCommentTest() {
-        var file = "C:\\Users\\easezhi\\Desktop\\sql.sql";
+        var file = "D:\\easezhi\\document\\sql.sql";
         var lines = FileUtil.readLinesFromFile(file);
         var start = false;
-        var tableName = "public.lawsuit_trial";
-        var sql = "COMMENT ON TABLE tableName.field IS 'comment';";
+        var tableName = "public.purchase_contract";
+        var sql = "COMMENT ON COLUMN tableName.field IS 'comment';";
         for (var line: lines) {
             if (line.length() == 0) continue;
             var first = StrUtil.firstWord(line);
