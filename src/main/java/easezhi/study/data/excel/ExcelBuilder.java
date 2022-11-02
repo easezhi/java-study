@@ -27,7 +27,7 @@ public class ExcelBuilder <E> {
     int dataRowIndex; // 数据所在行
     boolean freezeTitle;
 
-    String sheetName;
+    String sheetName = "Sheet1";
 
     ColumnSpec[] columnSpecs;
 
@@ -38,11 +38,18 @@ public class ExcelBuilder <E> {
 
     Integer rowHeight = 16; // 默认行高，单位像素。
 
-    public ExcelBuilder<E> init(Class<E> clazz) throws NoSuchMethodException {
-        workbook = new SXSSFWorkbook();
+    public static <E> ExcelBuilder<E> builder(Class<E> clazz) throws Exception {
+        var builder = new ExcelBuilder<E>();
+        builder.init(clazz);
+        return builder;
+    }
 
+    public ExcelBuilder<E> init(Class<E> clazz) throws NoSuchMethodException {
         var excelAnno = clazz.getAnnotation(ExcelEntity.class);
-        sheetName = excelAnno.sheet();
+        var sheet = excelAnno.sheet();
+        if (!sheet.isEmpty()) {
+            sheetName = sheet;
+        }
         titles = excelAnno.title();
         if (excelAnno.dateFormat().length() > 0) defaultDateFormat = excelAnno.dateFormat();
         if (excelAnno.dateTimeFormat().length() > 0) defaultDateTimeFormat = excelAnno.dateTimeFormat();
@@ -67,6 +74,8 @@ public class ExcelBuilder <E> {
     }
 
     public void build(OutputStream os, List<E> docList) throws Exception {
+        workbook = new SXSSFWorkbook();
+
         var sheet = workbook.createSheet(sheetName);
         if (rowHeight != null) sheet.setDefaultRowHeightInPoints(rowHeight);
 
