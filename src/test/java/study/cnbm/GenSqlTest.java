@@ -1,10 +1,5 @@
 package study.cnbm;
 
-import com.alibaba.druid.DbType;
-import com.alibaba.druid.sql.parser.SQLCreateTableParser;
-import com.alibaba.druid.sql.parser.SQLExprParser;
-import com.alibaba.druid.sql.parser.SQLParserFeature;
-import com.alibaba.druid.sql.SQLUtils;
 import easezhi.study.data.excel.ExcelParser;
 import easezhi.study.io.FileUtil;
 import easezhi.study.lang.StrUtil;
