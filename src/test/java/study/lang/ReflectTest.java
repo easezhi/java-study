@@ -1,6 +1,8 @@
 package study.lang;
 
+import easezhi.study.lang.bean.BeanUtil;
 import org.junit.Test;
+import study.bean.Father;
 import study.bean.Grandson;
 import study.bean.Son;
 
@@ -31,6 +33,13 @@ public class ReflectTest {
         System.out.println(name.getDeclaringClass().getSimpleName());
         System.out.println("同一个字段多次获取的 Field 不是同一个对象实例");
         System.out.println(decName == name);
+    }
+
+    @Test
+    public void testFieldSpec() {
+        var fields = BeanUtil.getAllFields(Son.class);
+        String ss = fields.stream().map(Field::getName).collect(Collectors.joining(","));
+        System.out.println(ss);
     }
 
     @Test

@@ -4,7 +4,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class Father implements Who {
+    @Getter
     public String name = "父";
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Setter
     public String surname;
     public int age = 50;
 
