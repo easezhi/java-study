@@ -37,9 +37,10 @@ public class ReflectTest {
 
     @Test
     public void testFieldSpec() {
-        var fields = BeanUtil.getAllFields(Son.class);
-        String ss = fields.stream().map(Field::getName).collect(Collectors.joining(","));
-        System.out.println(ss);
+        var specs = BeanUtil.getFieldSpecs(Son.class);
+        specs.forEach(spec -> {
+            System.out.printf("%s %s %s\n", spec.getName(), spec.getGetter(), spec.getSetter());
+        });
     }
 
     @Test
