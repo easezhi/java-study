@@ -62,4 +62,53 @@ public class ContractMap {
         contractOrder.setSalesContractType(contract.getOrderType());
         return contractOrder;
     }
+
+    public static ContractOrder fromRebateOffset(RebateOffset rebateOffset) {
+        ContractOrder contractOrder = new ContractOrder();
+        contractOrder.setSalesContractNo(rebateOffset.getCredenceNo());
+        contractOrder.setOriginalContractNo(rebateOffset.getCredenceNo());
+        contractOrder.setSource("5");
+        // 关联单据，取关联的销售合同编号
+        contractOrder.setRelatedOrder(rebateOffset.getSalesContractNo());
+        contractOrder.setContractCustomerName(rebateOffset.getCustomer());
+        contractOrder.setSignSubject(rebateOffset.getCorp());
+
+        contractOrder.setRebatedContractAmt(rebateOffset.getContractRebatedAmt());
+
+        contractOrder.setContractBusinessMan(rebateOffset.getBusinessMan());
+        contractOrder.setContractSalesMan(rebateOffset.getSalesman());
+        contractOrder.setContractCreateBy(rebateOffset.getCreateBy());
+        contractOrder.setContractCreateName(rebateOffset.getCreatorName());
+        contractOrder.setSalesApplyDept(rebateOffset.getCreatorOrg());
+        contractOrder.setContractCreateTime(rebateOffset.getCreateTime());
+        contractOrder.setApprovalStatus("2");
+        return contractOrder;
+    }
+
+    public static ContractOrder fromProtocol(Protocol protocol) {
+        ContractOrder contractOrder = new ContractOrder();
+        contractOrder.setSalesContractNo(protocol.getAgreementNo());
+        contractOrder.setOriginalContractNo(protocol.getAgreementGroup());
+        contractOrder.setSource("2");
+        // 签约主体，所属公司
+        contractOrder.setSignSubject(protocol.getCorp());
+        // 签约单位
+        contractOrder.setContractCustomerName(protocol.getSignParty());
+        // 关联单据编号，合作方协议号
+        contractOrder.setRelatedOrder(protocol.getPartyAgreementNo());
+        // 协议名称
+        contractOrder.setEntryName(protocol.getAgreementName());
+        contractOrder.setRebatedContractAmt(protocol.getAgreementAmt());
+        // 协议类型
+        contractOrder.setSalesContractType(protocol.getAgreementType());
+        // 商务
+        contractOrder.setContractBusinessMan(protocol.getBusinessMan());
+        contractOrder.setContractSalesMan(protocol.getSalesman());
+        contractOrder.setContractCreateName(protocol.getCreatorName());
+        contractOrder.setContractCreateTime(protocol.getCreateTime());
+        contractOrder.setSalesApplyDept(protocol.getCreatorOrg());
+        contractOrder.setApprovalStatus("2");
+        contractOrder.setApprovedTime(protocol.getEffectTime());
+        return contractOrder;
+    }
 }

@@ -11,14 +11,13 @@ import java.util.List;
 
 public class ClrpImport {
     int sqlBatch = 5000;
+    String inDir = "D:\\cnbm-work\\基石存储核心业务单据\\原始单据\\";
+    String outDir = "D:\\cnbm-work\\基石存储核心业务单据\\360环境100条\\";
 
     @Test
     public void importPCSql() throws Exception {
-        var inDir = "D:\\cnbm-work\\基石存储核心业务单据\\原始单据\\";
-        var outDir = "D:\\cnbm-work\\基石存储核心业务单据\\360环境100条\\";
         var pcFile = inDir + "采购合同-360-100条.xlsx";
         List<PurchaseContract> pcList = ExcelParser.parser(PurchaseContract.class).parse(new FileInputStream(pcFile));
-        pcList = pcList.subList(0, 10);
 
         // 采购合同核心表
         var sqlFile = outDir + "采购合同核心表.sql";
@@ -30,10 +29,32 @@ public class ClrpImport {
         buildClrpSql(contractOrderList, outDir, 3);
     }
 
+    @Test
+    public void importRebateSql() throws Exception {
+        var roFile = inDir + "返点冲抵-360-100条.xlsx";
+        List<RebateOffset> roList = ExcelParser.parser(RebateOffset.class).parse(new FileInputStream(roFile));
+        List<ContractOrder> contractOrderList = roList.stream().map(ContractMap::fromRebateOffset).toList();
+        buildClrpSql(contractOrderList, outDir, 5);
+    }
+
+    @Test
+    public void importProtocolSql() throws Exception {
+        var ptFile = inDir + "协议-360-100条.xlsx";
+        List<Protocol> protocolList = ExcelParser.parser(Protocol.class).parse(new FileInputStream(ptFile));
+        List<ContractOrder> contractOrderList = protocolList.stream().map(ContractMap::fromProtocol).toList();
+        buildClrpSql(contractOrderList, outDir, 2);
+    }
+
     void buildClrpSql(List<ContractOrder> contractOrderList, String dir, int source) throws Exception {
         String orderName;
         if (source == 3) {
             orderName = "采购合同";
+        } else if (source == 4) {
+            orderName = "采购订单";
+        } else if (source == 2) {
+            orderName = "协议";
+        } else if (source == 5) {
+            orderName = "返点冲抵";
         } else {
             orderName = "销售合同";
         }

@@ -50,15 +50,9 @@ public class PostLetter {
     // 合同类型
     private String salesContractType;
 
-    // 是否需要归档正本
-    private String isNeedArchived;
-
     // 项目名称
     private String entryName;
 
     // 审批状态
     private String approvalStatus;
-
-    // 审批完成时间
-    private LocalDateTime approvedTime;
 }
