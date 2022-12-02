@@ -2,6 +2,7 @@ package study.cnbm.clrp;
 
 import easezhi.study.data.db.SqlBuilder;
 import easezhi.study.data.excel.ExcelParser;
+import easezhi.study.data.excel.annotation.ExcelColumn;
 import easezhi.study.io.FileUtil;
 import org.junit.Test;
 import study.cnbm.clrp.model.*;
@@ -13,6 +14,18 @@ public class ClrpImport {
     int sqlBatch = 5000;
     String inDir = "D:\\cnbm-work\\基石存储核心业务单据\\原始单据\\";
     String outDir = "D:\\cnbm-work\\基石存储核心业务单据\\360环境100条\\";
+
+    @Test
+    public void importSCSql() throws Exception {
+        var scFile = inDir + "销售合同-360-100条.xlsx";
+        List<SalesContract> scList = ExcelParser.parser(SalesContract.class).parse(new FileInputStream(scFile));
+
+        var sqlFile = outDir + "销售合同核心表.sql";
+        var sql = SqlBuilder.builder(SalesContract.class, "public.sales_contract")
+            .buildBatchInsertSql(scList,sqlBatch);
+        FileUtil.writeStringToFile(sqlFile, sql.toString());
+        System.out.printf("写入销售合同%d行\n", scList.size());
+    }
 
     @Test
     public void importPCSql() throws Exception {
@@ -27,6 +40,23 @@ public class ClrpImport {
 
         List<ContractOrder> contractOrderList = pcList.stream().map(ContractMap::fromPurchaseContract).toList();
         buildClrpSql(contractOrderList, outDir, 3);
+    }
+
+    @Test
+    public void importPoSql() throws Exception {
+        var poFile = inDir + "采购订单-360-100条.xlsx";
+        List<PurchaseOrderExcel> poRows = ExcelParser.parser(PurchaseOrderExcel.class).parse((new FileInputStream(poFile)));
+        List<PurchaseOrder> poList = ContractMapper.INSTANCE.poFromExcel(poRows);
+
+        var sqlFile = outDir + "采购合同核心表-采购订单.sql";
+        var sql = SqlBuilder.builder(PurchaseOrder.class, "public.purchase_contract")
+            .buildBatchInsertSql(poList, sqlBatch);
+        FileUtil.writeStringToFile(sqlFile, sql.toString());
+        System.out.printf("写入采购订单%d行\n", poList.size());
+
+        List<PurchaseContract> pcList = ContractMapper.INSTANCE.poToPc(poList);
+        List<ContractOrder> contractOrderList = pcList.stream().map(ContractMap::fromPurchaseContract).toList();
+        buildClrpSql(contractOrderList, outDir, 4);
     }
 
     @Test

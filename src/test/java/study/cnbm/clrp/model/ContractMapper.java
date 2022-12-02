@@ -13,4 +13,8 @@ public interface ContractMapper {
     PostLetter toPostLetter(ContractOrder contractOrder);
 
     List<PostLetter> toPostLetter(List<ContractOrder> contractOrderList);
+
+    List<PurchaseOrder> poFromExcel(List<PurchaseOrderExcel> list);
+
+    List<PurchaseContract> poToPc(List<PurchaseOrder> poList);
 }
