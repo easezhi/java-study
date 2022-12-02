@@ -48,4 +48,10 @@ class ExcelUtil {
         return cellType.equals(NUMERIC) ||
             (cellType.equals(FORMULA) && cell.getCachedFormulaResultType().equals(NUMERIC));
     }
+
+    static boolean cellIsBoolean(Cell cell) {
+        var cellType = cell.getCellType();
+        return cellType.equals(BOOLEAN) ||
+            (cellType.equals(FORMULA) && cell.getCachedFormulaResultType().equals(BOOLEAN));
+    }
 }

@@ -13,9 +13,10 @@ public @interface ExcelEntity {
     int dataRow() default 0; // 数据行开始的 Excel 行号。如果不指定，默认是标题行的下一行
     boolean freezeTitle() default false; // 固定标题行
 
-    // 所有字段共用的日期格式，单元格是字符格式时，按照这个模式解析或格式化。如果不指定值，按一下默认格式：
+    // 所有字段共用的日期格式，单元格是字符格式时，按照这个模式解析或格式化。如果不指定值，按以下默认格式：
     // 解析Excel时：默认格式 "yyyy-M-d"，一位、两位的月日都能解析
     // 生成Excel时：按 "yyyy-MM-dd" 格式写入单元格
+    // 声明的格式优先级：ExcelColumn > ExcelEntity > FieldSpec
     String dateFormat() default "";
     String dateTimeFormat() default ""; // 默认时间格式
 

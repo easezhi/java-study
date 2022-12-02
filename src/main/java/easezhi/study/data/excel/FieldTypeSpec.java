@@ -14,8 +14,33 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 
+// 支持 true\false t\f 不区分大小写，其他值都视为 null
+class BoolField extends FieldSpec {
+    @Override
+    BoolBuilder newBuilder() {
+        var builder = new BoolBuilder();
+        builder.spec = this;
+        return builder;
+    }
+}
+
+class BoolBuilder extends FieldBuilder<BoolField, Boolean> {
+    void parseCellValue() {
+        if (ExcelUtil.cellIsBoolean(cell)) {
+            value = cell.getBooleanCellValue();
+        } else if (ExcelUtil.cellIsString(cell)) {
+            var str = cell.getStringCellValue().trim().toLowerCase();
+            if (str.equals("true") || str.equals("t")) {
+                value = true;
+            } else if (str.equals("false") || str.equals("f")) {
+                value = false;
+            }
+        }
+    }
+}
 
 class StringField extends FieldSpec {
+    @Override
     StringBuilder newBuilder() {
         var builder = new StringBuilder();
         builder.spec = this;
@@ -25,6 +50,7 @@ class StringField extends FieldSpec {
 
 class StringBuilder extends FieldBuilder<StringField, String> {
 
+    @Override
     void parseCellValue() {
         if (ExcelUtil.cellIsString(cell)) {
             value = cell.getStringCellValue().trim();
@@ -226,6 +252,7 @@ class LocalTemporalBuilder<S extends LocalTemporalField, V> extends FieldBuilder
 
     LocalDateTime localTimeValue;
 
+    @Override
     void parseCellValue() {
         localTimeValue = parseLocalTime();
     }

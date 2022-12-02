@@ -59,6 +59,8 @@ class FieldSpec {
         if (fieldType == String.class) {
             // 字符串
             spec = new StringField();
+        } else if (fieldType == Boolean.class) {
+            spec = new BoolField();
         } else if (fieldType == Integer.class || fieldType == Long.class) {
             // 整数
             spec = new IntegerNumField();

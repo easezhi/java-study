@@ -18,6 +18,8 @@ public class SqlUtil {
             return ((SqlFunNameEnum) val).getValue();
         } else if (val instanceof Number) {
             return val.toString();
+        } else if (val instanceof Boolean) {
+            return val.toString();
         } else {
             return "'" + val + "'";
         }
