@@ -2,13 +2,15 @@ package study.cnbm.clrp;
 
 import easezhi.study.data.db.SqlBuilder;
 import easezhi.study.data.excel.ExcelParser;
-import easezhi.study.data.excel.annotation.ExcelColumn;
+import easezhi.study.datastructure.CollectionUtil;
 import easezhi.study.io.FileUtil;
 import org.junit.Test;
+import study.cnbm.bean.User;
 import study.cnbm.clrp.model.*;
 
 import java.io.FileInputStream;
 import java.util.List;
+import java.util.Map;
 
 public class ClrpImport {
     int sqlBatch = 5000;
@@ -32,8 +34,16 @@ public class ClrpImport {
         var pcFile = inDir + "采购合同-360-100条.xlsx";
         List<PurchaseContract> pcList = ExcelParser.parser(PurchaseContract.class).parse(new FileInputStream(pcFile));
 
+        var userFile = inDir + "员工账号-360.xlsx";
+        List<User> userList = ExcelParser.parser(User.class).parse(new FileInputStream(userFile));
+        Map<String, String> userNameMap = CollectionUtil.toMap(userList, User::getName, User::getLogin);
+
+        pcList.forEach(pc -> {
+            pc.setBusinessManLogin(userNameMap.get(pc.getBusinessMan()));
+        });
+
         // 采购合同核心表
-        var sqlFile = outDir + "采购合同核心表.sql";
+        var sqlFile = outDir + "采购合同核心表-采购合同.sql";
         var sql = SqlBuilder.builder(PurchaseContract.class, "public.purchase_contract").buildBatchInsertSql(pcList, sqlBatch);
         FileUtil.writeStringToFile(sqlFile, sql.toString());
         System.out.printf("写入采购合同%d行\n", pcList.size());
@@ -44,9 +54,40 @@ public class ClrpImport {
 
     @Test
     public void importPoSql() throws Exception {
-        var poFile = inDir + "采购订单-360-100条.xlsx";
-        List<PurchaseOrderExcel> poRows = ExcelParser.parser(PurchaseOrderExcel.class).parse((new FileInputStream(poFile)));
+        var poFile = inDir + "采购订单-360.xlsx";
+        List<PurchaseOrderExcel> poRows = ExcelParser.parser(PurchaseOrderExcel.class)
+            .parse((new FileInputStream(poFile)));
+
+        var userFile = inDir + "员工账号-360.xlsx";
+        List<User> userList = ExcelParser.parser(User.class).parse(new FileInputStream(userFile));
+        Map<String, String> userLoginMap = CollectionUtil.toMap(userList, User::getLogin, User::getName);
+        Map<String, String> userNameMap = CollectionUtil.toMap(userList, User::getName, User::getLogin);
+
+        var supplierFile = inDir + "供应商名称与编码EXPORT-360.XLSX";
+        List<PurchaseOrderSupplier> supplierList = ExcelParser.parser(PurchaseOrderSupplier.class)
+            .parse(new FileInputStream(supplierFile));
+        Map<String, String> supplierMap = CollectionUtil.toMap(supplierList,
+            PurchaseOrderSupplier::getSupplierId, PurchaseOrderSupplier::getSupplier);
+
         List<PurchaseOrder> poList = ContractMapper.INSTANCE.poFromExcel(poRows);
+        poList.forEach(po -> {
+            po.setSupplier(supplierMap.get(po.getSupplierId()));
+            po.setSalesmanLogin(userNameMap.get(po.getSalesman()));
+            po.setBusinessManLogin(userNameMap.get(po.getBusinessMan()));
+            var creatorName = po.getCreatorName(); // 值可能是账号或姓名
+            if (creatorName != null) {
+                if (userNameMap.containsKey(creatorName)) {
+                    po.setCreateBy(userNameMap.get(creatorName));
+                } else {
+                    var createBy = creatorName.toLowerCase();
+                    if (userLoginMap.containsKey(createBy)) {
+                        po.setCreateBy(createBy);
+                        po.setCreatorName(userLoginMap.get(createBy));
+                    }
+                }
+            }
+
+        });
 
         var sqlFile = outDir + "采购合同核心表-采购订单.sql";
         var sql = SqlBuilder.builder(PurchaseOrder.class, "public.purchase_contract")
@@ -88,6 +129,9 @@ public class ClrpImport {
         } else {
             orderName = "销售合同";
         }
+
+        // 过滤掉商务人员无值的
+        contractOrderList = contractOrderList.stream().filter(e -> e.getContractBusinessMan() != null).toList();
 
         // 寄出表
         List<PostLetter> plList = ContractMapper.INSTANCE.toPostLetter(contractOrderList);

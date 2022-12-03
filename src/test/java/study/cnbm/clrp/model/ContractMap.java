@@ -30,11 +30,17 @@ public class ContractMap {
     public static ContractOrder fromPurchaseContract(PurchaseContract contract) {
         ContractOrder contractOrder = new ContractOrder();
 
-        // 合同编号
-        contractOrder.setSalesContractNo(contract.getContractNo());
-        // 合同原始版本号
-        contractOrder.setOriginalContractNo(contract.getContractGroup());
-        contractOrder.setSource("3");
+        if (contract.getOrderSrc() == 1) {
+            // 合同编号
+            contractOrder.setSalesContractNo(contract.getContractNo());
+            // 合同原始版本号
+            contractOrder.setOriginalContractNo(contract.getContractGroup());
+            contractOrder.setSource("3");
+        } else {
+            contractOrder.setSalesContractNo(contract.getOrderNo());
+            contractOrder.setOriginalContractNo(contract.getOrderNo());
+            contractOrder.setSource("4");
+        }
         // 关联业务编号，供应商订单号
         contractOrder.setRelatedOrder(contract.getSupplierOrder());
         // 签约主体编号

@@ -9,7 +9,6 @@ import java.util.List;
 public interface ContractMapper {
     ContractMapper INSTANCE = Mappers.getMapper(ContractMapper.class);
 
-
     PostLetter toPostLetter(ContractOrder contractOrder);
 
     List<PostLetter> toPostLetter(List<ContractOrder> contractOrderList);

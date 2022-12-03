@@ -1,96 +1,127 @@
 package study.cnbm.clrp.model;
 
+import easezhi.study.data.excel.ExcelColumnMapType;
 import easezhi.study.data.excel.ExcelParseEntity;
 import easezhi.study.data.excel.annotation.ExcelColumn;
+import easezhi.study.data.excel.annotation.ExcelEntity;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@ExcelEntity(columnMapType = ExcelColumnMapType.COLUMN_NAME)
 @Data
 public class PurchaseOrderExcel implements ExcelParseEntity {
 
-    @ExcelColumn(value = "采购订单号")
+    // 采购订单号
+    @ExcelColumn(value = "EBELN")
     private String orderNo;
 
-    @ExcelColumn(value = "供应商订单号")
+    // 供应商订单号
+    @ExcelColumn(value = "ZZPO")
     private String supplierOrder;
 
-    @ExcelColumn(value = "供应商编号")
+    // 供应商编号
+    @ExcelColumn(value = "LIFNR")
     private String supplierId;
 
-    @ExcelColumn(value = "供应商名称")
+    // 供应商名称
     private String supplier;
 
-    @ExcelColumn("LIFNR_NAME")
-    String supplier1;
-
-    @ExcelColumn("LIFNR_NAME2")
-    String supplier2;
-
-    @ExcelColumn(value = "所属公司")
+    // 所属公司
+    @ExcelColumn(value = "BUKRS")
     private String corp;
 
-    @ExcelColumn(value = "采购组织")
+    // 采购组织
+    @ExcelColumn(value = "EKORG")
     private String purchaseOrg;
 
-    @ExcelColumn(value = "采购组")
+    // 采购组
+    @ExcelColumn(value = "EKGRP")
     private String purchaseGroup;
 
-    @ExcelColumn(value = "利润中心")
+    // 利润中心
+    @ExcelColumn(value = "ZZCP")
     private String profitCenter;
 
-    @ExcelColumn(value = "产品线")
+    // 产品线
+//    @ExcelColumn(value = "ZSPL")
     private String productLine;
 
-    @ExcelColumn(value = "采购合同类型")
+    // 采购合同类型
+    @ExcelColumn(value = "BSART")
     private String orderType;
 
-    @ExcelColumn(value = "合同金额")
+    // 合同金额
+    @ExcelColumn(value = "ZZZJY")
     private BigDecimal orderAmt;
 
     private BigDecimal exRebateAmt;
 
-    @ExcelColumn(value = "设备采购金额")
+    public BigDecimal getExRebateAmt() {
+        return orderAmt.subtract(getRebateAmt());
+    }
+
+    // 设备采购金额
+    @ExcelColumn(value = "ZSBZJE")
     private BigDecimal deviceAmt;
 
-    @ExcelColumn(value = "服务采购金额")
+    // 服务采购金额
+    @ExcelColumn(value = "ZFWZJE")
     private BigDecimal serviceAmt;
 
-    @ExcelColumn(value = "使用返点金额")
+    // 使用返点金额
     private BigDecimal rebateAmt;
 
-    private BigDecimal deviceRebate;
+    public BigDecimal getRebateAmt() {
+        return deviceRebateAmt.add(serviceRebateAmt);
+    }
 
-    private BigDecimal serviceRebate;
+    // 设备返点金额
+    @ExcelColumn(value = "ZZSBFD")
+    private BigDecimal deviceRebateAmt;
 
-    @ExcelColumn(value = "币种")
+    // 服务返点金额
+    @ExcelColumn(value = "ZZFWFD")
+    private BigDecimal serviceRebateAmt;
+
+    // 币种
+    @ExcelColumn(value = "WAERS")
     private String currencyType;
 
-    @ExcelColumn(value = "运输方式")
+    // 运输方式
+    @ExcelColumn(value = "ZZYS")
     private String transportType;
 
-    @ExcelColumn(value = "是否标准合同")
+    // 是否标准合同
+//    @ExcelColumn(value = "ZSTANDARD")
     private String isStandard;
 
-    @ExcelColumn(value = "销售员姓名")
+    // 销售员姓名
+    @ExcelColumn(value = "ZZSQR")
     private String salesman;
 
-    @ExcelColumn(value = "二级经销商")
+    // 二级经销商
+    @ExcelColumn(value = "ZZEJ")
     private String dealer;
 
-    @ExcelColumn(value = "最终客户")
+    // 最终客户
+    @ExcelColumn(value = "ZZKH")
     private String finalCustomer;
 
-    @ExcelColumn(value = "商务人员")
+    // 商务人员
+    @ExcelColumn(value = "ZSWRY")
     private String businessMan;
 
-    @ExcelColumn(value = "创建人账号")
-    private String createBy;
+    // 创建人
+    @ExcelColumn(value = "ERNAM")
+    private String creatorName;
 
-    @ExcelColumn(value = "创建时间")
+    // 创建时间
+    @ExcelColumn(value = "BEDAT")
     private LocalDateTime createTime;
 
-    @ExcelColumn(value = "项目名称")
+    // 项目名称
+    @ExcelColumn(value = "ZZXM")
     private String projectName;
 }

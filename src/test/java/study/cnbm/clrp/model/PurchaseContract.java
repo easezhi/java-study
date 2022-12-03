@@ -114,6 +114,8 @@ public class PurchaseContract implements ExcelParseEntity {
     @ExcelColumn(value = "商务人员")
     private String businessMan;
 
+    private String businessManLogin;
+
     @ExcelColumn(value = "创建人部门id")
     private String creatorOrgKid;
 
