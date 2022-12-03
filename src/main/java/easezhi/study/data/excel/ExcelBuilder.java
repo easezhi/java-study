@@ -117,7 +117,7 @@ public class ExcelBuilder <E> {
     }
 
     ColumnSpec[] buildColumnSpecs(Class clazz, String[] titles) throws NoSuchMethodException {
-        Map<String, Field> fieldMap = ExcelUtil.getAnnotatedFields(clazz);
+        Map<String, Field> fieldMap = ExcelUtil.getAnnotatedFieldsMap(clazz);
         ColumnSpec[] specs = new ColumnSpec[titles.length];
         for (int i = 0; i < titles.length; i++) {
             var title = titles[i];

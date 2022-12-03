@@ -1,5 +1,7 @@
 package easezhi.study.data.excel.annotation;
 
+import easezhi.study.data.excel.ExcelColumnMapType;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
@@ -7,7 +9,12 @@ import java.lang.annotation.RetentionPolicy;
 public @interface ExcelEntity {
     String sheet() default "";
 
-    String[] title();
+    ExcelColumnMapType columnMapType() default ExcelColumnMapType.TITLE_LIST;
+
+    String[] title() default {};
+
+    // 是否检查表头
+    boolean checkTitle() default true;
 
     int titleRow() default 1; // 标题所在的 Excel 行号，按Excel习惯，从1开始。
     int dataRow() default 0; // 数据行开始的 Excel 行号。如果不指定，默认是标题行的下一行

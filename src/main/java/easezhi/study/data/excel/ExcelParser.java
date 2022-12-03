@@ -1,12 +1,11 @@
 package easezhi.study.data.excel;
 
 import easezhi.study.data.excel.annotation.ExcelEntity;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -24,8 +23,12 @@ public class ExcelParser <E extends ExcelParseEntity> {
 
     String[] titles;
 
-    int titleRow; // 标题所在行，从0开始
-    int dataRow; // 数据所在行
+    boolean checkTitle;
+
+    ExcelColumnMapType columnMapType;
+
+    int titleRowIndex; // 标题所在行，从0开始
+    int dataRowIndex; // 数据所在行
 
     FieldSpec[] fieldSpecs;
 
@@ -36,7 +39,14 @@ public class ExcelParser <E extends ExcelParseEntity> {
     String defaultDateFormat = "yyyy-M-d";
 
     public static <E extends ExcelParseEntity> ExcelParser<E> parser(Class<E> clazz) throws Exception {
-        return new ExcelParser<E>().init(clazz);
+        var parser = new ExcelParser<E>().init(clazz);
+        if (parser.columnMapType == ExcelColumnMapType.TITLE_LIST) {
+            if (parser.titles.length == 0) {
+                throw new RuntimeException("必需指定表头");
+            }
+            parser.fieldSpecs = parser.buildFieldSpecsByTitleList();
+        }
+        return parser;
     }
 
     ExcelParser<E> init(Class<E> clazz) throws Exception {
@@ -48,13 +58,14 @@ public class ExcelParser <E extends ExcelParseEntity> {
         simplifyErrorMsg = excelAnno.simplifyErrorMsg();
         sheetName = excelAnno.sheet();
         titles = excelAnno.title();
-        titleRow = excelAnno.titleRow() - 1;
+        columnMapType = excelAnno.columnMapType();
+        checkTitle = excelAnno.checkTitle();
+        titleRowIndex = excelAnno.titleRow() - 1;
         if (excelAnno.dataRow() == 0) { // 不指定，默认值
-            dataRow = titleRow + 1;
+            dataRowIndex = titleRowIndex + 1;
         } else {
-            dataRow = excelAnno.dataRow() - 1;
+            dataRowIndex = excelAnno.dataRow() - 1;
         }
-        fieldSpecs = buildFieldSpecs();
         return this;
     }
 
@@ -79,11 +90,19 @@ public class ExcelParser <E extends ExcelParseEntity> {
         } else {
             sheet = workbook.getSheetAt(0);
         }
-        int totalRow = sheet.getLastRowNum();
 
+        // 初始化列与字段映射
+        var titleRow = sheet.getRow(titleRowIndex);
+        if (columnMapType == ExcelColumnMapType.COLUMN_NAME) {
+            fieldSpecs = buildFieldSpecsByColumnName(titleRow);
+        } else if (columnMapType == ExcelColumnMapType.COLUMN_INDEX) {
+            fieldSpecs = buildFieldSpecsByColumnIndex(titleRow);
+        }
+
+        int totalRow = sheet.getLastRowNum();
         ArrayList<E> beans = new ArrayList<>();
         int lastEmptyRows = 0; // 最后若干空行，需要忽略掉
-        for (int r = dataRow; r <= totalRow; r++) {
+        for (int r = dataRowIndex; r <= totalRow; r++) {
             var row = sheet.getRow(r);
             E bean = constructor.newInstance();
             ExcelBeanError beanError = bean.getExcelBeanError();
@@ -123,8 +142,8 @@ public class ExcelParser <E extends ExcelParseEntity> {
         return beans;
     }
 
-    FieldSpec[] buildFieldSpecs() throws NoSuchMethodException {
-        Map<String, Field> fieldMap = ExcelUtil.getAnnotatedFields(clazz);
+    FieldSpec[] buildFieldSpecsByTitleList() throws NoSuchMethodException {
+        Map<String, Field> fieldMap = ExcelUtil.getAnnotatedFieldsMap(clazz);
         List<FieldSpec> specs = new ArrayList<>(titles.length);
         for (var i = 0; i < titles.length; i++) {
             var title = titles[i];
@@ -135,6 +154,49 @@ public class ExcelParser <E extends ExcelParseEntity> {
             spec.colIndex = i;
             specs.add(spec);
         }
-        return specs.toArray(new FieldSpec[]{});
+        return specs.toArray(new FieldSpec[0]);
+    }
+
+    FieldSpec[] buildFieldSpecsByColumnName(Row titleRow) throws NoSuchMethodException {
+        Map<String, Field> fieldMap = ExcelUtil.getAnnotatedFieldsMap(clazz);
+        var specs = new ArrayList<FieldSpec>(fieldMap.size());
+
+        var minIdx = titleRow.getFirstCellNum();
+        var maxIdx = titleRow.getLastCellNum();
+        var titles = new String[maxIdx];
+        for (var i = minIdx; i < maxIdx; i++) {
+            titles[i] = ExcelUtil.cellGetTextValue(titleRow.getCell(i));
+        }
+
+        var missedTitles = new ArrayList<String>();
+        for (var entry: fieldMap.entrySet()) {
+            var name = entry.getKey();
+            var field = entry.getValue();
+            var idx = findTitleIndex(titles, name);
+            if (idx >= 0) {
+                var spec = FieldSpec.genFieldSpec(clazz, field);
+                spec.colIndex = idx;
+                specs.add(spec);
+            } else {
+                missedTitles.add(name);
+            }
+        }
+        if (checkTitle && !missedTitles.isEmpty()) {
+            throw new RuntimeException("Excel文件缺少列：" + String.join("、", missedTitles));
+        }
+        return specs.toArray(new FieldSpec[0]);
+    }
+
+    FieldSpec[] buildFieldSpecsByColumnIndex(Row titleRow) {
+        return null;
+    }
+
+    int findTitleIndex(String[] titles, String title) {
+        for (int i = 0; i < titles.length; i++) {
+            if (title.equals(titles[i])) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
