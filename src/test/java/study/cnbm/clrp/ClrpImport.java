@@ -16,11 +16,26 @@ public class ClrpImport {
     int sqlBatch = 5000;
     String inDir = "D:\\cnbm-work\\基石存储核心业务单据\\原始单据\\";
     String outDir = "D:\\cnbm-work\\基石存储核心业务单据\\360环境100条\\";
+    String salesContractExcel = "销售合同-360-100条.xlsx";
+    String purchaseContractExcel = "采购合同-360-100条.xlsx";
+    String purchaseOrderExcel = "采购订单-360.xlsx";
+    String supplierExcel = "供应商名称与编码EXPORT-360.XLSX";
+    String rebateOffsetExcel = "返点冲抵-360-100条.xlsx";
+    String protocolExcel = "协议-360-100条.xlsx";
+    String userExcel = "员工账号-360.xlsx";
 
     @Test
-    public void importSCSql() throws Exception {
-        var scFile = inDir + "销售合同-360-100条.xlsx";
+    public void importSalesContractSql() throws Exception {
+        var scFile = inDir + salesContractExcel;
         List<SalesContract> scList = ExcelParser.parser(SalesContract.class).parse(new FileInputStream(scFile));
+
+        var userFile = inDir + userExcel;
+        List<User> userList = ExcelParser.parser(User.class).parse(new FileInputStream(userFile));
+        Map<String, String> userIdMap = CollectionUtil.toMap(userList, User::getKid, User::getLogin);
+
+        scList.forEach(sc -> {
+            sc.setSalesmanLogin(userIdMap.get(sc.getSalesmanLogin()));
+        });
 
         var sqlFile = outDir + "销售合同核心表.sql";
         var sql = SqlBuilder.builder(SalesContract.class, "public.sales_contract")
@@ -30,11 +45,11 @@ public class ClrpImport {
     }
 
     @Test
-    public void importPCSql() throws Exception {
-        var pcFile = inDir + "采购合同-360-100条.xlsx";
+    public void importPurchaseContractSql() throws Exception {
+        var pcFile = inDir + purchaseContractExcel;
         List<PurchaseContract> pcList = ExcelParser.parser(PurchaseContract.class).parse(new FileInputStream(pcFile));
 
-        var userFile = inDir + "员工账号-360.xlsx";
+        var userFile = inDir + userExcel;
         List<User> userList = ExcelParser.parser(User.class).parse(new FileInputStream(userFile));
         Map<String, String> userNameMap = CollectionUtil.toMap(userList, User::getName, User::getLogin);
 
@@ -53,17 +68,17 @@ public class ClrpImport {
     }
 
     @Test
-    public void importPoSql() throws Exception {
-        var poFile = inDir + "采购订单-360.xlsx";
+    public void importPurchaseOrderSql() throws Exception {
+        var poFile = inDir + purchaseOrderExcel;
         List<PurchaseOrderExcel> poRows = ExcelParser.parser(PurchaseOrderExcel.class)
             .parse((new FileInputStream(poFile)));
 
-        var userFile = inDir + "员工账号-360.xlsx";
+        var userFile = inDir + userExcel;
         List<User> userList = ExcelParser.parser(User.class).parse(new FileInputStream(userFile));
         Map<String, String> userLoginMap = CollectionUtil.toMap(userList, User::getLogin, User::getName);
         Map<String, String> userNameMap = CollectionUtil.toMap(userList, User::getName, User::getLogin);
 
-        var supplierFile = inDir + "供应商名称与编码EXPORT-360.XLSX";
+        var supplierFile = inDir + supplierExcel;
         List<PurchaseOrderSupplier> supplierList = ExcelParser.parser(PurchaseOrderSupplier.class)
             .parse(new FileInputStream(supplierFile));
         Map<String, String> supplierMap = CollectionUtil.toMap(supplierList,
@@ -102,7 +117,7 @@ public class ClrpImport {
 
     @Test
     public void importRebateSql() throws Exception {
-        var roFile = inDir + "返点冲抵-360-100条.xlsx";
+        var roFile = inDir + rebateOffsetExcel;
         List<RebateOffset> roList = ExcelParser.parser(RebateOffset.class).parse(new FileInputStream(roFile));
         List<ContractOrder> contractOrderList = roList.stream().map(ContractMap::fromRebateOffset).toList();
         buildClrpSql(contractOrderList, outDir, 5);
@@ -110,7 +125,7 @@ public class ClrpImport {
 
     @Test
     public void importProtocolSql() throws Exception {
-        var ptFile = inDir + "协议-360-100条.xlsx";
+        var ptFile = inDir + protocolExcel;
         List<Protocol> protocolList = ExcelParser.parser(Protocol.class).parse(new FileInputStream(ptFile));
         List<ContractOrder> contractOrderList = protocolList.stream().map(ContractMap::fromProtocol).toList();
         buildClrpSql(contractOrderList, outDir, 2);

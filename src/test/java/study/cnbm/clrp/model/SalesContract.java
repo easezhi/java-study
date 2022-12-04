@@ -96,8 +96,12 @@ public class SalesContract implements ExcelParseEntity {
     @ExcelColumn(value = "返点金额")
     private BigDecimal rebateAmt;
 
-    @ExcelColumn(value = "返点后合同金额")
+    // 返点后合同金额
     private BigDecimal exRebateAmt;
+
+    public BigDecimal getExRebateAmt() {
+        return (contractAmt == null || rebateAmt == null) ? contractAmt : contractAmt.subtract(rebateAmt);
+    }
 
     @ExcelColumn(value = "币种")
     private String currencyType;
