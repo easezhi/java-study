@@ -53,7 +53,7 @@ public class ContractOrder {
     private String salesContractType;
 
     // 是否需要归档正本
-    private String isNeedArchived;
+    private String isNeedArchived = "1";
 
     // 项目名称
     private String entryName;

@@ -106,4 +106,6 @@ public class PurchaseOrder {
 
     // 项目名称
     private String projectName;
+
+    private String needArchive;
 }

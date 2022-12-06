@@ -9,20 +9,46 @@ import study.cnbm.bean.User;
 import study.cnbm.clrp.model.*;
 
 import java.io.FileInputStream;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ClrpImport {
     int sqlBatch = 5000;
-    String inDir = "D:\\cnbm-work\\基石存储核心业务单据\\原始单据\\";
-    String outDir = "D:\\cnbm-work\\基石存储核心业务单据\\360环境100条\\";
-    String salesContractExcel = "销售合同-360-100条.xlsx";
-    String purchaseContractExcel = "采购合同-360-100条.xlsx";
-    String purchaseOrderExcel = "采购订单-360.xlsx";
-    String supplierExcel = "供应商名称与编码EXPORT-360.XLSX";
-    String rebateOffsetExcel = "返点冲抵-360-100条.xlsx";
-    String protocolExcel = "协议-360-100条.xlsx";
-    String userExcel = "员工账号-360.xlsx";
+    String inDir = "D:\\cnbm-work\\基石存储核心业务单据\\510原始单据\\";
+    String outDir = "D:\\cnbm-work\\基石存储核心业务单据\\510数据\\";
+    String salesContractExcel = "销售合同.xlsx";
+    String purchaseContractExcel = "采购合同.xlsx";
+    String purchaseOrderExcel = "采购订单.XLSX";
+    String supplierExcel = "供应商.XLSX";
+    String rebateOffsetExcel = "返点冲抵.xlsx";
+    String protocolExcel = "协议.xlsx";
+    String userExcel = "员工账号.xlsx";
+
+    Set<String> getSuppliers() {
+        var supplierSet = new HashSet<String>();
+        supplierSet.add("1000008665");
+        supplierSet.add("1000000670");
+        supplierSet.add("1000008982");
+        supplierSet.add("1000010676");
+        supplierSet.add("1000008662");
+        supplierSet.add("1000010225");
+        supplierSet.add("1000011390");
+        supplierSet.add("1000009737");
+        supplierSet.add("1000009489");
+        supplierSet.add("1000008621");
+        supplierSet.add("1000010262");
+        supplierSet.add("1000008815");
+        supplierSet.add("1000008901");
+        supplierSet.add("1000001686");
+        supplierSet.add("1000007907");
+        supplierSet.add("1000010200");
+        supplierSet.add("1000008413");
+        supplierSet.add("1000011019");
+        supplierSet.add("1000010656");
+        return supplierSet;
+    }
 
     @Test
     public void importSalesContractSql() throws Exception {
@@ -55,6 +81,7 @@ public class ClrpImport {
 
         pcList.forEach(pc -> {
             pc.setBusinessManLogin(userNameMap.get(pc.getBusinessMan()));
+            pc.setNeedArchive(getSuppliers().contains(pc.getSupplierId()) ? "1" : "0");
         });
 
         // 采购合同核心表
@@ -101,7 +128,7 @@ public class ClrpImport {
                     }
                 }
             }
-
+            po.setNeedArchive(getSuppliers().contains(po.getSupplierId()) ? "1" : "0");
         });
 
         var sqlFile = outDir + "采购合同核心表-采购订单.sql";
@@ -119,6 +146,15 @@ public class ClrpImport {
     public void importRebateSql() throws Exception {
         var roFile = inDir + rebateOffsetExcel;
         List<RebateOffset> roList = ExcelParser.parser(RebateOffset.class).parse(new FileInputStream(roFile));
+
+        var userFile = inDir + userExcel;
+        List<User> userList = ExcelParser.parser(User.class).parse(new FileInputStream(userFile));
+        Map<String, String> userIdMap = CollectionUtil.toMap(userList, User::getKid, User::getLogin);
+
+        roList.forEach(ro -> {
+            ro.setCreateBy(userIdMap.get(ro.getCreateBy()));
+        });
+
         List<ContractOrder> contractOrderList = roList.stream().map(ContractMap::fromRebateOffset).toList();
         buildClrpSql(contractOrderList, outDir, 5);
     }
@@ -157,11 +193,12 @@ public class ClrpImport {
         System.out.printf("%s写入寄出%d行\n", orderName, plList.size());
 
         // 收取表
+        List<ReceiveLetter> rlList = ContractMapper.INSTANCE.toReceiveLetter(contractOrderList);
         var rlSqlFile = dir + orderName + "导入收取.sql";
-        var rlSql = SqlBuilder.builder(PostLetter.class, "public.dailyoffice_receive_letter")
-            .buildBatchInsertSql(plList, sqlBatch);
+        var rlSql = SqlBuilder.builder(ReceiveLetter.class, "public.dailyoffice_receive_letter")
+            .buildBatchInsertSql(rlList, sqlBatch);
         FileUtil.writeStringToFile(rlSqlFile, rlSql.toString());
-        System.out.printf("%s写入收取%d行\n", orderName, plList.size());
+        System.out.printf("%s写入收取%d行\n", orderName, rlList.size());
 
         // 归档表
         List<FileArchive> faList = contractOrderList.stream()
@@ -170,6 +207,6 @@ public class ClrpImport {
         var arSql = SqlBuilder.builder(FileArchive.class, "public.dailyoffice_file_archived")
             .buildBatchInsertSql(faList, sqlBatch);
         FileUtil.writeStringToFile(arSqlFile, arSql.toString());
-        System.out.printf("%s写入归档%d行\n", orderName, plList.size());
+        System.out.printf("%s写入归档%d行\n", orderName, faList.size());
     }
 }

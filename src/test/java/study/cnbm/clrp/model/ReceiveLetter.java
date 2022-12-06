@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-public class PostLetter {
+public class ReceiveLetter {
 
     // 合同编号，带版本号的
     private String salesContractNo;
@@ -55,6 +55,4 @@ public class PostLetter {
 
     // 审批状态
     private String approvalStatus;
-
-    private String isNeedArchived;
 }
