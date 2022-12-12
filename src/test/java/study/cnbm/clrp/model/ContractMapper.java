@@ -15,7 +15,11 @@ public interface ContractMapper {
 
     List<ReceiveLetter> toReceiveLetter(List<ContractOrder> contractOrderList);
 
+    PurchaseOrder poFromExcel(PurchaseOrderExcel poExcel);
+
     List<PurchaseOrder> poFromExcel(List<PurchaseOrderExcel> list);
 
-    List<PurchaseContract> poToPc(List<PurchaseOrder> poList);
+    PurchaseContract poToPurchaseContract(PurchaseOrder po);
+
+    List<PurchaseContract> poToPurchaseContract(List<PurchaseOrder> poList);
 }

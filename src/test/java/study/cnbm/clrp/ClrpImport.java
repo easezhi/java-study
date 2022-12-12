@@ -20,7 +20,7 @@ public class ClrpImport {
     String outDir = "D:\\cnbm-work\\基石存储核心业务单据\\510数据\\";
     String salesContractExcel = "销售合同.xlsx";
     String purchaseContractExcel = "采购合同.xlsx";
-    String purchaseOrderExcel = "采购订单.XLSX";
+    String purchaseOrderExcel = "采购订单-少量.xlsx";
     String supplierExcel = "供应商.XLSX";
     String rebateOffsetExcel = "返点冲抵.xlsx";
     String protocolExcel = "协议.xlsx";
@@ -111,7 +111,7 @@ public class ClrpImport {
         Map<String, String> supplierMap = CollectionUtil.toMap(supplierList,
             PurchaseOrderSupplier::getSupplierId, PurchaseOrderSupplier::getSupplier);
 
-        List<PurchaseOrder> poList = ContractMapper.INSTANCE.poFromExcel(poRows);
+        List<PurchaseOrder> poList = ContractMap.poExcelToPo(poRows);
         poList.forEach(po -> {
             po.setSupplier(supplierMap.get(po.getSupplierId()));
             po.setSalesmanLogin(userNameMap.get(po.getSalesman()));
@@ -137,8 +137,7 @@ public class ClrpImport {
         FileUtil.writeStringToFile(sqlFile, sql.toString());
         System.out.printf("写入采购订单%d行\n", poList.size());
 
-        List<PurchaseContract> pcList = ContractMapper.INSTANCE.poToPc(poList);
-        List<ContractOrder> contractOrderList = pcList.stream().map(ContractMap::fromPurchaseContract).toList();
+        List<ContractOrder> contractOrderList = ContractMap.poToContractOrder(poList);
         buildClrpSql(contractOrderList, outDir, 4);
     }
 

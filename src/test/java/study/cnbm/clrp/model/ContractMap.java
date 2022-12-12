@@ -1,6 +1,40 @@
 package study.cnbm.clrp.model;
 
+import study.cnbm.dict.JsonDict;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class ContractMap {
+    public static List<PurchaseOrder> poExcelToPo(List<PurchaseOrderExcel> poExcelList) {
+        var poList = new ArrayList<PurchaseOrder>(poExcelList.size());
+        poExcelList.forEach(poExcel -> {
+            PurchaseOrder po = ContractMapper.INSTANCE.poFromExcel(poExcel);
+            poList.add(po);
+            if ("是".equals(po.getIsStandard())) {
+                po.setIsStandard("1");
+            } else if ("否".equals(po.getIsStandard())) {
+                po.setIsStandard("2");
+            }
+        });
+        return poList;
+    }
+
+    public static List<ContractOrder> poToContractOrder(List<PurchaseOrder> poList) {
+        var contractOrders = new ArrayList<ContractOrder>(poList.size());
+        poList.forEach(po -> {
+            PurchaseContract purchaseContract = ContractMapper.INSTANCE.poToPurchaseContract(po);
+            var orgMap = JsonDict.getPurchaseOrgMap();
+            // 采购订单生成归档时，部门取采购组织
+            var org = purchaseContract.getPurchaseOrg();
+            if (org != null && orgMap.containsKey(org)) {
+                purchaseContract.setCreatorOrg((String) orgMap.get(org));
+            }
+            ContractOrder contractOrder = fromPurchaseContract(purchaseContract);
+            contractOrders.add(contractOrder);
+        });
+        return contractOrders;
+    }
 
     public static FileArchive contractToArchive(ContractOrder contractOrder) {
         FileArchive fileArchive = new FileArchive();

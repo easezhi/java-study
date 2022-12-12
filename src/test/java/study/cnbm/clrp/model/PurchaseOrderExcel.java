@@ -45,7 +45,7 @@ public class PurchaseOrderExcel implements ExcelParseEntity {
     private String profitCenter;
 
     // 产品线
-//    @ExcelColumn(value = "ZSPL")
+    @ExcelColumn(value = "ZSPL")
     private String productLine;
 
     // 采购合同类型
@@ -94,7 +94,7 @@ public class PurchaseOrderExcel implements ExcelParseEntity {
     private String transportType;
 
     // 是否标准合同
-//    @ExcelColumn(value = "ZSTANDARD")
+    @ExcelColumn(value = "ZSTANDARD")
     private String isStandard;
 
     // 销售员姓名
