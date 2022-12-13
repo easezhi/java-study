@@ -182,6 +182,11 @@ public class ClrpImport {
 
         // 过滤掉商务人员无值的
         contractOrderList = contractOrderList.stream().filter(e -> e.getContractBusinessMan() != null).toList();
+        contractOrderList.forEach(contractOrder -> {
+            if (contractOrder.getContractCustomerName() == null) {
+                contractOrder.setContractCustomerName(""); // 客户null值影响收寄业务查询
+            }
+        });
 
         // 寄出表
         List<PostLetter> plList = ContractMapper.INSTANCE.toPostLetter(contractOrderList);

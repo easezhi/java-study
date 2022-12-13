@@ -20,6 +20,11 @@ public class SqlUtil {
             return val.toString();
         } else if (val instanceof Boolean) {
             return val.toString();
+        } else if (val instanceof String sqlVal) {
+            if (sqlVal.contains("'")) {
+                sqlVal = sqlVal.replaceAll("'", "''"); // 单引号转义
+            }
+            return "'" + sqlVal + "'";
         } else {
             return "'" + val + "'";
         }
