@@ -42,7 +42,7 @@ public class SalesContract implements ExcelParseEntity {
     @ExcelColumn(value = "开票客户")
     private String invoiceCustomer;
 
-    @ExcelColumn(value = "最终客户名称")
+    @ExcelColumn(value = "最终客户名称", escapeCsvDelimiter = true)
     private String finalCustomer;
 
     @ExcelColumn(value = "所属公司")
@@ -75,7 +75,7 @@ public class SalesContract implements ExcelParseEntity {
     @ExcelColumn(value = "是否集成服务合同")
     private Boolean isService;
 
-    @ExcelColumn(value = "项目名称")
+    @ExcelColumn(value = "项目名称", escapeCsvDelimiter = true)
     private String projectName;
 
     @ExcelColumn(value = "开票税率")

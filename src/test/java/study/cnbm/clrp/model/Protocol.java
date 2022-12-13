@@ -30,13 +30,13 @@ public class Protocol implements ExcelParseEntity {
     @ExcelColumn("签约主体")
     private String corp;
 
-    @ExcelColumn("签约单位")
+    @ExcelColumn(value = "签约单位", escapeCsvDelimiter = true)
     private String signParty;
 
-    @ExcelColumn("合作方协议编号")
+    @ExcelColumn(value = "合作方协议编号", escapeCsvDelimiter = true)
     private String partyAgreementNo;
 
-    @ExcelColumn("协议名称")
+    @ExcelColumn(value = "协议名称", escapeCsvDelimiter = true)
     private String agreementName;
 
     @ExcelColumn("协议金额")

@@ -105,10 +105,10 @@ public class PurchaseContract implements ExcelParseEntity {
     @ExcelColumn(value = "销售小组编号")
     private String salesGroup;
 
-    @ExcelColumn(value = "二级经销商")
+    @ExcelColumn(value = "二级经销商", escapeCsvDelimiter = true)
     private String dealer;
 
-    @ExcelColumn(value = "最终客户")
+    @ExcelColumn(value = "最终客户", escapeCsvDelimiter = true)
     private String finalCustomer;
 
     @ExcelColumn(value = "商务人员")
@@ -148,6 +148,6 @@ public class PurchaseContract implements ExcelParseEntity {
     @ExcelColumn(value = "是否需要归档")
     private String needArchive;
 
-    @ExcelColumn(value = "项目名称")
+    @ExcelColumn(value = "项目名称", escapeCsvDelimiter = true)
     private String projectName;
 }
