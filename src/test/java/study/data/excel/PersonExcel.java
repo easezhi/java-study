@@ -14,11 +14,13 @@ import java.time.LocalDateTime;
 @Accessors(chain = true)
 //@ExcelEntity(title = {"姓名","年龄","性别","次数","小数","实数","大数","生日","时间","短日期"}, sheet = "员工",
 //    dateTimeFormat = "yyyy-MM-dd HH:mm:ss")
-@ExcelEntity(title = {"姓名","年龄","次数","小数","实数","大数","生日","时间"},
-    sheet = "员工", freezeTitle = true,
+@ExcelEntity(
+//    title = {"姓名","年龄","次数","小数","实数","大数","生日","时间"},
+    title = {"姓名"},
+    freezeTitle = true,
     dateTimeFormat = "yyyy-MM-dd HH:mm:ss", simplifyErrorMsg = true)
 public class PersonExcel implements ExcelParseEntity {
-    @ExcelColumn(value = "姓名", required = true, max = 5)
+    @ExcelColumn(value = "姓名", required = true, max = 5, escapeCsvDelimiter = true)
     private String name;
 
     @ExcelColumn("性别")

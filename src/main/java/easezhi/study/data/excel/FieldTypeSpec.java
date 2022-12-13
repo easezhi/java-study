@@ -59,9 +59,13 @@ class StringBuilder extends FieldBuilder<StringField, String> {
         }
         if (ExcelUtil.strEmpty(value)) {
             value = null; // 用户没有编辑单元格、单元格内容是空白字符，统一按 null 处理
-
-        } else if (spec.max != null && value.length() > spec.max) { // 超长
-            addError(ExcelColumnError.ErrorType.MAX_LENGTH);
+        } else {
+            if (spec.escapeCsvDelimiter) {
+                value = value.replaceAll("&124;", "|");
+            }
+            if (spec.max != null && value.length() > spec.max) { // 超长
+                addError(ExcelColumnError.ErrorType.MAX_LENGTH);
+            }
         }
     }
 }

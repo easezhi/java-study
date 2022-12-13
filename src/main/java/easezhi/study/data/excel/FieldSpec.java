@@ -35,6 +35,8 @@ class FieldSpec {
 
     String format;
 
+    boolean escapeCsvDelimiter;
+
     void specifyField(ExcelEntity excelAnno, ExcelColumn colAnno) {}
 
     final FieldBuilder<? extends FieldSpec, ?> builder(Object bean, ExcelBeanError beanError, Cell cell) {
@@ -87,6 +89,7 @@ class FieldSpec {
         spec.scale = colAnno.scale();
         if (colAnno.max() > 0) spec.max = colAnno.max();
         if (colAnno.format().length() > 0) spec.format = colAnno.format();
+        spec.escapeCsvDelimiter = colAnno.escapeCsvDelimiter();
 
         // 具体类型特定的字段类型配置
         spec.specifyField(excelAnno, colAnno);

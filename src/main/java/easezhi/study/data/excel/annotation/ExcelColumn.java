@@ -24,4 +24,8 @@ public @interface ExcelColumn {
     String align() default ""; // 文本对齐
 
     int width() default 0; // 单元格宽度，字符数。0 使用工作表默认宽度。负值强制擦除工作表的默认宽度，使用office软件的默认宽度
+
+    // 从CSV转换成的Excel文件，如果文件内容本身包含CSV分隔符，需要先转义为特定字符序列。
+    // 解析这种文件时，可以还原被转义的分隔符
+    boolean escapeCsvDelimiter() default false;
 }
