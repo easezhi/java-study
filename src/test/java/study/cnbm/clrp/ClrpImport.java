@@ -16,11 +16,11 @@ import java.util.Set;
 
 public class ClrpImport {
     int sqlBatch = 5000;
-    String inDir = "D:\\cnbm-work\\基石存储核心业务单据\\510原始单据\\";
-    String outDir = "D:\\cnbm-work\\基石存储核心业务单据\\510数据\\";
+    String inDir = "D:\\cnbm-work\\基石存储核心业务单据\\360原始单据\\";
+    String outDir = "D:\\cnbm-work\\基石存储核心业务单据\\360数据\\";
     String salesContractExcel = "销售合同.xlsx";
     String purchaseContractExcel = "采购合同.xlsx";
-    String purchaseOrderExcel = "采购订单-少量.xlsx";
+    String purchaseOrderExcel = "采购订单.xlsx";
     String supplierExcel = "供应商.XLSX";
     String rebateOffsetExcel = "返点冲抵.xlsx";
     String protocolExcel = "协议.xlsx";
@@ -185,6 +185,10 @@ public class ClrpImport {
         contractOrderList.forEach(contractOrder -> {
             if (contractOrder.getContractCustomerName() == null) {
                 contractOrder.setContractCustomerName(""); // 客户null值影响收寄业务查询
+            }
+            // 已作废单据
+            if (contractOrder.getIsRemove()) {
+                contractOrder.setSalesContractNo(contractOrder.getOriginalContractNo() + "-JC");
             }
         });
 

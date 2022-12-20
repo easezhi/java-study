@@ -63,4 +63,7 @@ public class ContractOrder {
 
     // 审批完成时间
     private LocalDateTime approvedTime;
+
+    // 是否已作废
+    private Boolean isRemove;
 }

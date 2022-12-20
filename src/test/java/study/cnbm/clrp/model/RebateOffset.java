@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @ExcelEntity(title = {
-    "返点冲抵编号","销售合同号","客户","客户编号","所属公司编号",
+    "返点冲抵编号","销售合同号","单据状态","客户","客户编号","所属公司编号",
     "商务人员账号","商务人员","销售人员","销售员账号","销售部门id","销售部门",
     "创建人账号","创建人","创建时间","申请部门id","申请部门",
     "销售合同金额","销售合同返点后金额","合同使用返点金额","返点冲抵金额","币种"
@@ -22,6 +22,9 @@ public class RebateOffset implements ExcelParseEntity {
 
     @ExcelColumn("销售合同号")
     private String salesContractNo;
+
+    @ExcelColumn("单据状态")
+    private Integer status;
 
     @ExcelColumn("客户")
     private String customer;

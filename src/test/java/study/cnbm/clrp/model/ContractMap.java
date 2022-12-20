@@ -122,6 +122,8 @@ public class ContractMap {
         contractOrder.setSalesApplyDept(rebateOffset.getCreatorOrg());
         contractOrder.setContractCreateTime(rebateOffset.getCreateTime());
         contractOrder.setApprovalStatus("2");
+
+        contractOrder.setIsRemove(rebateOffset.getStatus() == 5);
         return contractOrder;
     }
 
