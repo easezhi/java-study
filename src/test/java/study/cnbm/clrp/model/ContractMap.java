@@ -78,8 +78,12 @@ public class ContractMap {
         contractOrder.setContractCreateName(contract.getCreatorName());
         contractOrder.setContractCreateBy(contract.getCreateBy());
         contractOrder.setContractCreateTime(contract.getCreateTime());
+        contractOrder.setIsNeedArchived(contract.getNeedArchive());
+        contractOrder.setIsSendPulled("1".equals(contract.getSendPulled()));
+        contractOrder.setIsReceivePulled("1".equals(contract.getReceivePulled()));
+        contractOrder.setIsArchivePulled("1".equals(contract.getArchivePulled()));
 
-
+        contractOrder.setIsRemove(contract.getOrderStatus() == 2);
         return contractOrder;
     }
 

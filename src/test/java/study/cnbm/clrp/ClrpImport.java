@@ -9,6 +9,7 @@ import study.cnbm.bean.User;
 import study.cnbm.clrp.model.*;
 
 import java.io.FileInputStream;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class ClrpImport {
@@ -22,6 +23,8 @@ public class ClrpImport {
     String rebateOffsetExcel = "返点冲抵.xlsx";
     String protocolExcel = "协议.xlsx";
     String userExcel = "员工账号.xlsx";
+
+    LocalDateTime archiveTimeStart = LocalDateTime.of(2020,1,1,0,0);
 
     Set<String> getSuppliers() {
         var supplierSet = new HashSet<String>();
@@ -60,11 +63,49 @@ public class ClrpImport {
             sc.setSalesmanLogin(userIdMap.get(sc.getSalesmanLogin()));
         });
 
+        // 设置最终版本
+        var scMap = new HashMap<String, SalesContract>(scList.size());
+        scList.forEach(sc -> {
+            if (scMap.containsKey(sc.getContractGroup())) {
+                var last = scMap.get(sc.getContractGroup());
+                if (sc.getContractNo().compareTo(last.getContractNo()) > 0) {
+                    scMap.put(sc.getContractGroup(), sc);
+                    setSalesContractLast(sc);
+                    setSalesContractNotLast(last);
+                } else {
+                    setSalesContractNotLast(sc);
+                }
+            } else {
+                scMap.put(sc.getContractGroup(), sc);
+                setSalesContractLast(sc);
+            }
+        });
+
+        List<SalesContractCore> contractCoreList = scList.stream()
+            .filter(sc -> sc.getApprovalStatus() != 1)
+            .map(ContractMapper.INSTANCE::salesContractToCore)
+            .toList();
         var sqlFile = outDir + "销售合同核心表.sql";
-        var sql = SqlBuilder.builder(SalesContract.class, "public.sales_contract")
-            .buildBatchInsertSql(scList,sqlBatch);
+        var sql = SqlBuilder.builder(SalesContractCore.class, "public.sales_contract")
+            .buildBatchInsertSql(contractCoreList, sqlBatch);
         FileUtil.writeStringToFile(sqlFile, sql.toString());
-        System.out.printf("写入销售合同%d行\n", scList.size());
+        System.out.printf("写入销售合同%d行\n", contractCoreList.size());
+
+        List<ContractOrder> orderList = scList.stream()
+            .filter(sc -> !(sc.getOrderStatus() == 2 && sc.getIsLast() == 0))
+            .map(ContractMap::fromSalesContract)
+            .toList();
+        buildClrpSql(orderList, outDir, 1);
+    }
+
+    void setSalesContractLast(SalesContract sc) {
+        sc.setIsLast(1);
+        sc.setIsLastValid(sc.getOrderStatus() == 0 ? 0 : 1);
+    }
+
+    void setSalesContractNotLast(SalesContract sc) {
+        sc.setIsLast(0);
+        sc.setIsLastValid(0);
     }
 
     @Test
@@ -220,21 +261,38 @@ public class ClrpImport {
             }
         });
 
+        // 销售合同只处理近期数据
+        if (source == 1) {
+            contractOrderList = contractOrderList.stream().filter(this::contractToArchive).toList();
+        }
+
         // 寄出表
-        List<PostLetter> plList = ContractMapper.INSTANCE.toPostLetter(contractOrderList);
-        var plSqlFile = dir + orderName + "导入寄出.sql";
-        var plSql = SqlBuilder.builder(PostLetter.class, "public.dailyoffice_post_letter")
-            .buildBatchInsertSql(plList, sqlBatch);
-        FileUtil.writeStringToFile(plSqlFile, plSql.toString());
-        System.out.printf("%s写入寄出%d行\n", orderName, plList.size());
+        var pos = contractOrderList.stream();
+        if (source == 1) {
+            pos = pos.filter(order -> !order.getIsSendPulled());
+        }
+        List<PostLetter> plList = pos.map(ContractMapper.INSTANCE::toPostLetter).toList();
+        if (!plList.isEmpty()) {
+            var plSqlFile = dir + orderName + "导入寄出.sql";
+            var plSql = SqlBuilder.builder(PostLetter.class, "public.dailyoffice_post_letter")
+                .buildBatchInsertSql(plList, sqlBatch);
+            FileUtil.writeStringToFile(plSqlFile, plSql.toString());
+            System.out.printf("%s写入寄出%d行\n", orderName, plList.size());
+        }
 
         // 收取表
-        List<ReceiveLetter> rlList = ContractMapper.INSTANCE.toReceiveLetter(contractOrderList);
-        var rlSqlFile = dir + orderName + "导入收取.sql";
-        var rlSql = SqlBuilder.builder(ReceiveLetter.class, "public.dailyoffice_receive_letter")
-            .buildBatchInsertSql(rlList, sqlBatch);
-        FileUtil.writeStringToFile(rlSqlFile, rlSql.toString());
-        System.out.printf("%s写入收取%d行\n", orderName, rlList.size());
+        var ros = contractOrderList.stream();
+        if (source == 1) {
+            ros = ros.filter(order -> !order.getIsReceivePulled());
+        }
+        List<ReceiveLetter> rlList = ros.map(ContractMapper.INSTANCE::toReceiveLetter).toList();
+        if (!rlList.isEmpty()) {
+            var rlSqlFile = dir + orderName + "导入收取.sql";
+            var rlSql = SqlBuilder.builder(ReceiveLetter.class, "public.dailyoffice_receive_letter")
+                .buildBatchInsertSql(rlList, sqlBatch);
+            FileUtil.writeStringToFile(rlSqlFile, rlSql.toString());
+            System.out.printf("%s写入收取%d行\n", orderName, rlList.size());
+        }
 
         // 归档表
         var aos = contractOrderList.stream();
@@ -249,5 +307,9 @@ public class ClrpImport {
             FileUtil.writeStringToFile(arSqlFile, arSql.toString());
             System.out.printf("%s写入归档%d行\n", orderName, faList.size());
         }
+    }
+
+    boolean contractToArchive(ContractOrder order) {
+        return order.getContractCreateTime() != null && order.getContractCreateTime().compareTo(archiveTimeStart) > 0;
     }
 }

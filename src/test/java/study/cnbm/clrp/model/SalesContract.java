@@ -17,7 +17,8 @@ import java.time.LocalDateTime;
     "合同金额","返点金额","币种",
     "商务账号","商务","销售人员账号","销售人员","创建人账号","创建人",
     "创建时间","生效时间","审批状态","单据状态","关联合同编号","是否是关联合同",
-    "电商订单编号"
+    "电商订单编号","是否需要归档",
+    "寄出拉取","收取拉取","归档拉取"
 })
 @Data
 public class SalesContract implements ExcelParseEntity {
@@ -138,7 +139,7 @@ public class SalesContract implements ExcelParseEntity {
 
     private Integer isLast;
 
-    private Integer versionSn;
+    private Integer isLastValid;
 
     @ExcelColumn(value = "关联合同编号")
     private String relationContract;
@@ -148,4 +149,16 @@ public class SalesContract implements ExcelParseEntity {
 
     @ExcelColumn(value = "电商订单编号")
     private String ecommerceOrder;
+
+    @ExcelColumn(value = "是否需要归档")
+    private String needArchive;
+
+    @ExcelColumn(value = "寄出拉取")
+    private String sendPulled;
+
+    @ExcelColumn(value = "收取拉取")
+    private String receivePulled;
+
+    @ExcelColumn(value = "归档拉取")
+    private String archivePulled;
 }

@@ -9,9 +9,13 @@ import java.util.List;
 public interface ContractMapper {
     ContractMapper INSTANCE = Mappers.getMapper(ContractMapper.class);
 
-    PostLetter toPostLetter(ContractOrder contractOrder);
+    SalesContractCore salesContractToCore(SalesContract contract);
+    List<SalesContractCore> salesContractToCore(List<SalesContract> contractList);
 
+    PostLetter toPostLetter(ContractOrder contractOrder);
     List<PostLetter> toPostLetter(List<ContractOrder> contractOrderList);
+
+    ReceiveLetter toReceiveLetter(ContractOrder contractOrder);
 
     List<ReceiveLetter> toReceiveLetter(List<ContractOrder> contractOrderList);
 
