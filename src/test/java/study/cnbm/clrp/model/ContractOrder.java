@@ -65,5 +65,11 @@ public class ContractOrder {
     private LocalDateTime approvedTime;
 
     // 是否已作废
-    private Boolean isRemove;
+    private Boolean isRemove = false;
+
+    private Boolean isSendPulled = false;
+
+    private Boolean isReceivePulled = false;
+
+    private Boolean isArchivePulled = false;
 }

@@ -61,6 +61,28 @@ public class ContractMap {
         return fileArchive;
     }
 
+    public static ContractOrder fromSalesContract(SalesContract contract) {
+        ContractOrder contractOrder = new ContractOrder();
+
+        contractOrder.setSalesContractNo(contract.getContractNo());
+        contractOrder.setOriginalContractNo(contract.getContractGroup());
+        contractOrder.setSource("1");
+        contractOrder.setSignSubject(contract.getCorp());
+        contractOrder.setContractCustomerName(contract.getCustomer());
+        contractOrder.setEntryName(contract.getProjectName());
+        contractOrder.setSalesContractType(contract.getContractType());
+        contractOrder.setRebatedContractAmt(contract.getExRebateAmt());
+        contractOrder.setContractBusinessMan(contract.getBusinessMan());
+        contractOrder.setContractSalesMan(contract.getSalesman());
+        contractOrder.setSalesApplyDept(contract.getSalesOrg());
+        contractOrder.setContractCreateName(contract.getCreatorName());
+        contractOrder.setContractCreateBy(contract.getCreateBy());
+        contractOrder.setContractCreateTime(contract.getCreateTime());
+
+
+        return contractOrder;
+    }
+
     public static ContractOrder fromPurchaseContract(PurchaseContract contract) {
         ContractOrder contractOrder = new ContractOrder();
 
@@ -100,6 +122,8 @@ public class ContractMap {
         contractOrder.setApprovalStatus(contract.getApprovalStatus().toString());
         // 采购合同类型
         contractOrder.setSalesContractType(contract.getOrderType());
+
+        contractOrder.setIsRemove(contract.getOrderStatus() == 2);
         return contractOrder;
     }
 
@@ -146,11 +170,15 @@ public class ContractMap {
         // 商务
         contractOrder.setContractBusinessMan(protocol.getBusinessMan());
         contractOrder.setContractSalesMan(protocol.getSalesman());
+        contractOrder.setContractCreateBy(protocol.getCreateBy());
         contractOrder.setContractCreateName(protocol.getCreatorName());
         contractOrder.setContractCreateTime(protocol.getCreateTime());
         contractOrder.setSalesApplyDept(protocol.getCreatorOrg());
         contractOrder.setApprovalStatus("2");
         contractOrder.setApprovedTime(protocol.getEffectTime());
+
+        contractOrder.setIsRemove(protocol.getOrderStatus() == -1);
+        contractOrder.setIsArchivePulled(protocol.getPullFlag() != null && protocol.getPullFlag() == 1);
         return contractOrder;
     }
 }

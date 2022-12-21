@@ -13,11 +13,10 @@ import java.time.LocalDateTime;
     "供应商订单号","供应商编号","供应商名称",
     "所属公司","采购组织","采购组","事业部","利润中心组","利润中心","产品线",
     "采购合同类型","合同金额","返点后合同金额","设备采购金额","服务采购金额","使用返点金额","币种","运输方式","是否标准合同",
-    "销售员账号","销售员姓名","销售部门id","销售部门","销售小组编号","二级经销商","最终客户","商务人员",
+    "销售员账号","销售员姓名","销售部门id","销售部门","销售小组","二级经销商","最终客户","商务人员",
     "创建人部门id","创建人部门","创建人","创建人账号","创建时间","审批生效时间",
-    "是否需要归档",
-    "审批状态", "单据状态", "是否最新版本",
-    "项目名称"
+    "审批状态","单据状态",
+    "采购确认单编号","项目名称"
 })
 @Data
 public class PurchaseContract implements ExcelParseEntity {
@@ -102,7 +101,7 @@ public class PurchaseContract implements ExcelParseEntity {
     @ExcelColumn(value = "销售部门")
     private String salesOrg;
 
-    @ExcelColumn(value = "销售小组编号")
+    @ExcelColumn(value = "销售小组")
     private String salesGroup;
 
     @ExcelColumn(value = "二级经销商", escapeCsvDelimiter = true)
@@ -137,16 +136,17 @@ public class PurchaseContract implements ExcelParseEntity {
     @ExcelColumn(value = "单据状态")
     private Integer orderStatus;
 
-    @ExcelColumn(value = "是否最新版本")
     private Integer isLast;
 
-    private Integer versionSn;
+    private Integer isLastValid;
 
     @ExcelColumn(value = "审批生效时间")
     private LocalDateTime effectTime;
 
-    @ExcelColumn(value = "是否需要归档")
     private String needArchive;
+
+    @ExcelColumn("采购确认单编号")
+    private String purchaseConfirmNo;
 
     @ExcelColumn(value = "项目名称", escapeCsvDelimiter = true)
     private String projectName;

@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
     "协议金额","币种","协议类型",
     "商务人员","销售员账号","销售人员","创建人账号","创建人","创建时间",
     "申请部门id","申请部门","审批完成时间",
+    "单据状态","是否拉取",
     "签约单位","合作方协议编号","协议名称"
 })
 @Data
@@ -74,4 +75,10 @@ public class Protocol implements ExcelParseEntity {
 
     @ExcelColumn("审批完成时间")
     private LocalDateTime effectTime;
+
+    @ExcelColumn("单据状态")
+    private Integer orderStatus;
+
+    @ExcelColumn("是否拉取")
+    private Integer pullFlag;
 }

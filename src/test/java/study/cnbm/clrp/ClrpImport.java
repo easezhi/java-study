@@ -9,10 +9,7 @@ import study.cnbm.bean.User;
 import study.cnbm.clrp.model.*;
 
 import java.io.FileInputStream;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ClrpImport {
     int sqlBatch = 5000;
@@ -84,14 +81,45 @@ public class ClrpImport {
             pc.setNeedArchive(getSuppliers().contains(pc.getSupplierId()) ? "1" : "0");
         });
 
+        // 设置最终版本
+        var pcMap = new HashMap<String, PurchaseContract>(pcList.size());
+        pcList.forEach(pc -> {
+            if (pcMap.containsKey(pc.getContractGroup())) {
+                var last = pcMap.get(pc.getContractGroup());
+                if (pc.getContractNo().compareTo(last.getContractNo()) > 0) {
+                    pcMap.put(pc.getContractGroup(), pc);
+                    setPurchaseContractLast(pc);
+                    setPurchaseContractNotLast(last);
+                } else {
+                    setPurchaseContractNotLast(pc);
+                }
+            } else {
+                pcMap.put(pc.getContractGroup(), pc);
+                setPurchaseContractLast(pc);
+            }
+        });
+
         // 采购合同核心表
         var sqlFile = outDir + "采购合同核心表-采购合同.sql";
         var sql = SqlBuilder.builder(PurchaseContract.class, "public.purchase_contract").buildBatchInsertSql(pcList, sqlBatch);
         FileUtil.writeStringToFile(sqlFile, sql.toString());
         System.out.printf("写入采购合同%d行\n", pcList.size());
 
-        List<ContractOrder> contractOrderList = pcList.stream().map(ContractMap::fromPurchaseContract).toList();
+        // 已作废的采购合同，即使多个版本，也只生成一条带后缀的，把作废状态非最新版的过滤掉
+        List<ContractOrder> contractOrderList = pcList.stream()
+            .filter(pc -> !(pc.getOrderStatus() == 2 && pc.getIsLast() == 0))
+            .map(ContractMap::fromPurchaseContract).toList();
         buildClrpSql(contractOrderList, outDir, 3);
+    }
+
+    void setPurchaseContractLast(PurchaseContract pc) {
+        pc.setIsLast(1);
+        pc.setIsLastValid(pc.getOrderStatus() == 0 ? 0 : 1);
+    }
+
+    void setPurchaseContractNotLast(PurchaseContract pc) {
+        pc.setIsLast(0);
+        pc.setIsLastValid(0);
     }
 
     @Test
@@ -209,12 +237,17 @@ public class ClrpImport {
         System.out.printf("%s写入收取%d行\n", orderName, rlList.size());
 
         // 归档表
-        List<FileArchive> faList = contractOrderList.stream()
-            .map(ContractMap::contractToArchive).toList();
-        var arSqlFile = dir + orderName + "导入归档.sql";
-        var arSql = SqlBuilder.builder(FileArchive.class, "public.dailyoffice_file_archived")
-            .buildBatchInsertSql(faList, sqlBatch);
-        FileUtil.writeStringToFile(arSqlFile, arSql.toString());
-        System.out.printf("%s写入归档%d行\n", orderName, faList.size());
+        var aos = contractOrderList.stream();
+        if (source == 1 || source == 2) {
+            aos = aos.filter(order -> !order.getIsArchivePulled());
+        }
+        List<FileArchive> faList = aos.map(ContractMap::contractToArchive).toList();
+        if (!faList.isEmpty()) {
+            var arSqlFile = dir + orderName + "导入归档.sql";
+            var arSql = SqlBuilder.builder(FileArchive.class, "public.dailyoffice_file_archived")
+                .buildBatchInsertSql(faList, sqlBatch);
+            FileUtil.writeStringToFile(arSqlFile, arSql.toString());
+            System.out.printf("%s写入归档%d行\n", orderName, faList.size());
+        }
     }
 }
