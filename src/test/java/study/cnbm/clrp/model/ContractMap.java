@@ -78,6 +78,8 @@ public class ContractMap {
         contractOrder.setContractCreateName(contract.getCreatorName());
         contractOrder.setContractCreateBy(contract.getCreateBy());
         contractOrder.setContractCreateTime(contract.getCreateTime());
+        contractOrder.setApprovalStatus(contract.getApprovalStatus().toString());
+        contractOrder.setApprovedTime(contract.getEffectTime());
         contractOrder.setIsNeedArchived(contract.getNeedArchive());
         contractOrder.setIsSendPulled("1".equals(contract.getSendPulled()));
         contractOrder.setIsReceivePulled("1".equals(contract.getReceivePulled()));

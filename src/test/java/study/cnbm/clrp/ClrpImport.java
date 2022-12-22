@@ -24,7 +24,7 @@ public class ClrpImport {
     String protocolExcel = "协议.xlsx";
     String userExcel = "员工账号.xlsx";
 
-    LocalDateTime archiveTimeStart = LocalDateTime.of(2020,1,1,0,0);
+    LocalDateTime archiveTimeStart = LocalDateTime.of(2021,1,1,0,0);
 
     Set<String> getSuppliers() {
         var supplierSet = new HashSet<String>();
@@ -82,7 +82,7 @@ public class ClrpImport {
         });
 
         List<SalesContractCore> contractCoreList = scList.stream()
-            .filter(sc -> sc.getApprovalStatus() != 1)
+            .filter(sc -> sc.getApprovalStatus() == 2)
             .map(ContractMapper.INSTANCE::salesContractToCore)
             .toList();
         var sqlFile = outDir + "销售合同核心表.sql";
