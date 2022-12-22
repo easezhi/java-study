@@ -2,6 +2,7 @@ package study.cnbm.clrp;
 
 import easezhi.study.data.db.SqlBuilder;
 import easezhi.study.data.excel.ExcelParser;
+import easezhi.study.data.excel.ExcelUtil;
 import easezhi.study.datastructure.CollectionUtil;
 import easezhi.study.io.FileUtil;
 import org.junit.Test;
@@ -58,7 +59,7 @@ public class ClrpImport {
         List<SalesContract> errList = scList.stream().filter(sc -> sc.getExcelBeanErrorMsg() != null).toList();
         if (!errList.isEmpty()) {
             errList.forEach(sc -> {
-                System.out.println(sc.getExcelBeanErrorMsg());
+                System.out.println(ExcelUtil.formatExcelParseEntityError(sc));
             });
             return;
         }

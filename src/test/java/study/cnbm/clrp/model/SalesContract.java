@@ -76,7 +76,7 @@ public class SalesContract extends ExcelParseEntityImpl {
     @ExcelColumn(value = "是否集成服务合同")
     private Boolean isService;
 
-    @ExcelColumn(value = "项目名称", escapeCsvDelimiter = true, max = 200)
+    @ExcelColumn(value = "项目名称", escapeCsvDelimiter = true, max = 500)
     private String projectName;
 
     @ExcelColumn(value = "开票税率")
