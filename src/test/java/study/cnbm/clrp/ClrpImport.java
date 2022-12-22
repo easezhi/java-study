@@ -14,8 +14,8 @@ import java.util.*;
 
 public class ClrpImport {
     int sqlBatch = 5000;
-    String inDir = "D:\\cnbm-work\\基石存储核心业务单据\\360原始单据\\";
-    String outDir = "D:\\cnbm-work\\基石存储核心业务单据\\360数据\\";
+    String inDir = "D:\\cnbm-work\\基石存储核心业务单据\\520原始单据\\";
+    String outDir = "D:\\cnbm-work\\基石存储核心业务单据\\520数据\\";
     String salesContractExcel = "销售合同.xlsx";
     String purchaseContractExcel = "采购合同.xlsx";
     String purchaseOrderExcel = "采购订单.xlsx";
@@ -155,9 +155,17 @@ public class ClrpImport {
         System.out.printf("写入采购合同%d行\n", pcList.size());
 
         // 已作废的采购合同，即使多个版本，也只生成一条带后缀的，把作废状态非最新版的过滤掉
-        List<ContractOrder> contractOrderList = pcList.stream()
-            .filter(pc -> !(pc.getOrderStatus() == 2 && pc.getIsLast() == 0))
-            .map(ContractMap::fromPurchaseContract).toList();
+        List<ContractOrder> contractOrderList = new ArrayList<>(pcList.size() + 2000);
+        pcList.forEach(pc -> {
+            ContractOrder contractOrder = ContractMap.fromPurchaseContract(pc);
+            contractOrderList.add(contractOrder);
+            if (contractOrder.getIsRemove()) {
+                contractOrder.setIsRemove(false);
+                if (pc.getIsLast() == 1) {
+                    contractOrderList.add(ContractMap.fromPurchaseContract(pc));
+                }
+            }
+        });
         buildClrpSql(contractOrderList, outDir, 3);
     }
 
@@ -222,6 +230,7 @@ public class ClrpImport {
     public void importRebateSql() throws Exception {
         var roFile = inDir + rebateOffsetExcel;
         List<RebateOffset> roList = ExcelParser.parser(RebateOffset.class).parse(new FileInputStream(roFile));
+        System.out.printf("共有返点冲抵%d条\n", roList.size());
 
         var userFile = inDir + userExcel;
         List<User> userList = ExcelParser.parser(User.class).parse(new FileInputStream(userFile));
@@ -231,7 +240,15 @@ public class ClrpImport {
             ro.setCreateBy(userIdMap.get(ro.getCreateBy()));
         });
 
-        List<ContractOrder> contractOrderList = roList.stream().map(ContractMap::fromRebateOffset).toList();
+        List<ContractOrder> contractOrderList = new ArrayList<>(roList.size() + 200);
+        roList.forEach(rebateOffset -> {
+            ContractOrder contractOrder = ContractMap.fromRebateOffset(rebateOffset);
+            contractOrderList.add(contractOrder);
+            if (contractOrder.getIsRemove()) {
+                contractOrder.setIsRemove(false);
+                contractOrderList.add(ContractMap.fromRebateOffset(rebateOffset));
+            }
+        });
         buildClrpSql(contractOrderList, outDir, 5);
     }
 
@@ -239,7 +256,28 @@ public class ClrpImport {
     public void importProtocolSql() throws Exception {
         var ptFile = inDir + protocolExcel;
         List<Protocol> protocolList = ExcelParser.parser(Protocol.class).parse(new FileInputStream(ptFile));
-        List<ContractOrder> contractOrderList = protocolList.stream().map(ContractMap::fromProtocol).toList();
+        System.out.printf("共有协议%d行\n", protocolList.size());
+
+        // 检出已作废，要单独生成带后缀的
+        List<ContractOrder> contractOrderList = new ArrayList<>(protocolList.size() + 200);
+        Map<String, Protocol> protocolMap = new HashMap<>(); // 每个已作废协议的最新版本
+        protocolList.forEach(protocol -> {
+            ContractOrder contractOrder = ContractMap.fromProtocol(protocol);
+            contractOrderList.add(contractOrder);
+            if (!contractOrder.getIsRemove()) {
+                return;
+            }
+            contractOrder.setIsRemove(false);
+            if (protocolMap.containsKey(contractOrder.getOriginalContractNo())) {
+                var last = protocolMap.get(contractOrder.getOriginalContractNo());
+                if (contractOrder.getSalesContractNo().compareTo(last.getAgreementNo()) > 0) {
+                    protocolMap.put(contractOrder.getOriginalContractNo(), protocol);
+                }
+            } else {
+                protocolMap.put(contractOrder.getOriginalContractNo(), protocol);
+            }
+        });
+        protocolMap.values().forEach(protocol -> contractOrderList.add(ContractMap.fromProtocol(protocol)));
         buildClrpSql(contractOrderList, outDir, 2);
     }
 

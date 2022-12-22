@@ -26,4 +26,6 @@ public interface ContractMapper {
     PurchaseContract poToPurchaseContract(PurchaseOrder po);
 
     List<PurchaseContract> poToPurchaseContract(List<PurchaseOrder> poList);
+
+    ContractOrder copyContractOrder(ContractOrder contractOrder);
 }
