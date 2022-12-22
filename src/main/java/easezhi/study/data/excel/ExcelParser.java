@@ -105,6 +105,7 @@ public class ExcelParser <E extends ExcelParseEntity> {
         for (int r = dataRowIndex; r <= totalRow; r++) {
             var row = sheet.getRow(r);
             E bean = constructor.newInstance();
+            bean.setExcelRowIndex(r + 1);
             ExcelBeanError beanError = bean.getExcelBeanError();
             if (beanError == null) {
                 beanError = new ExcelBeanError();

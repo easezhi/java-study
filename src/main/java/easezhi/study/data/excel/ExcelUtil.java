@@ -12,7 +12,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class ExcelUtil {
+public class ExcelUtil {
+
+    public static String formatExcelParseEntityError(ExcelParseEntity row) {
+        return "第" + row.getExcelRowIndex() + "行，" + row.getExcelBeanErrorMsg();
+    }
 
     static Map<String, Field> getAnnotatedFieldsMap(Class clazz) {
         Map<String, Field> fieldMap = new HashMap<>();

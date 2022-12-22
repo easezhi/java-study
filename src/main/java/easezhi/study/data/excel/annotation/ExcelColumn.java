@@ -14,10 +14,10 @@ public @interface ExcelColumn {
 
     boolean required() default false; // 是否必填
 
-    int precision() default 0; // 参考数据库精确度概念，整数位和小数位的位数总和。非正是无效值，即不检查精确度
-    int scale() default 0; // 小数位数。非正是无效值
+    int precision() default -1; // 参考数据库精确度概念，整数位和小数位的位数总和。非正是无效值，即不检查精确度
+    int scale() default -1; // 小数位数。非正是无效值
 
-    int max() default 0; // 字符：最大字符个数。
+    int max() default -1; // 字符：最大字符个数。
 
     String polyfill() default "";
 

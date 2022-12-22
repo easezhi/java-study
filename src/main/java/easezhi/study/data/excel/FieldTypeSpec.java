@@ -71,14 +71,23 @@ class StringBuilder extends FieldBuilder<StringField, String> {
 }
 
 class NumericField extends FieldSpec {
+    int defaultPrecision; // 不同类型各自设置默认精度
+
+    int defaultScale; // 不同类型
 
     int intPrec; // 整数位数
 
     long intPrecLimit;
 
+    @Override
     void specifyField(ExcelEntity excelAnno, ExcelColumn colAnno) {
-        intPrec = colAnno.precision() - colAnno.scale();
-        scale = colAnno.scale();
+        if (precision < 0) { // 注解的赋值无效
+            precision = defaultPrecision;
+        }
+        if (scale < 0) {
+            scale = defaultScale;
+        }
+        intPrec = precision - scale;
         intPrecLimit = ((Double)Math.pow(10, intPrec)).longValue();
     }
 
@@ -101,6 +110,11 @@ class NumericField extends FieldSpec {
 }
 
 class IntegerNumField extends NumericField {
+    @Override
+    void specifyField(ExcelEntity excelAnno, ExcelColumn colAnno) {
+        defaultPrecision = 9;
+        super.specifyField(excelAnno, colAnno);
+    }
 
     ExcelColumnError.ErrorType checkValue(Long value) {
         if (value != null) {
@@ -172,6 +186,12 @@ class IntegerBuilder extends IntegerNumBuilder<IntegerNumField, Integer> {
 }
 
 class FloatNumField extends NumericField {
+    @Override
+    void specifyField(ExcelEntity excelAnno, ExcelColumn colAnno) {
+        defaultPrecision = 18;
+        defaultScale = 5;
+        super.specifyField(excelAnno, colAnno);
+    }
 
     ExcelColumnError.ErrorType checkValue(Double value) {
         if (value != null) {
