@@ -1,6 +1,6 @@
 package study.cnbm.clrp.model;
 
-import easezhi.study.data.excel.ExcelParseEntity;
+import easezhi.study.data.excel.ExcelParseEntityImpl;
 import easezhi.study.data.excel.annotation.ExcelColumn;
 import easezhi.study.data.excel.annotation.ExcelEntity;
 import lombok.Data;
@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
     "寄出拉取","收取拉取","归档拉取"
 })
 @Data
-public class SalesContract implements ExcelParseEntity {
+public class SalesContract extends ExcelParseEntityImpl {
     @ExcelColumn(value = "销售合同号")
     private String contractNo;
 
@@ -43,7 +43,7 @@ public class SalesContract implements ExcelParseEntity {
     @ExcelColumn(value = "开票客户")
     private String invoiceCustomer;
 
-    @ExcelColumn(value = "最终客户名称", escapeCsvDelimiter = true)
+    @ExcelColumn(value = "最终客户名称", escapeCsvDelimiter = true, max = 500)
     private String finalCustomer;
 
     @ExcelColumn(value = "所属公司")
@@ -76,7 +76,7 @@ public class SalesContract implements ExcelParseEntity {
     @ExcelColumn(value = "是否集成服务合同")
     private Boolean isService;
 
-    @ExcelColumn(value = "项目名称", escapeCsvDelimiter = true)
+    @ExcelColumn(value = "项目名称", escapeCsvDelimiter = true, max = 200)
     private String projectName;
 
     @ExcelColumn(value = "开票税率")
@@ -85,7 +85,7 @@ public class SalesContract implements ExcelParseEntity {
     @ExcelColumn(value = "应收创建方式")
     private String receivableType;
 
-    @ExcelColumn(value = "合同模板")
+    @ExcelColumn(value = "合同模板", max = 30)
     private String template;
 
     @ExcelColumn(value = "签订日期")

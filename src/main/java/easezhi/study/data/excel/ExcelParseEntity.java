@@ -8,7 +8,7 @@ public interface ExcelParseEntity {
 
     default void setExcelBeanError(ExcelBeanError beanError) {}
 
-    default void setExcelRowIndex(int row) {}
+    default void setExcelRowIndex(Integer row) {}
 
     default void setExcelBeanError(String msg) {}
 }

@@ -54,6 +54,14 @@ public class ClrpImport {
     public void importSalesContractSql() throws Exception {
         var scFile = inDir + salesContractExcel;
         List<SalesContract> scList = ExcelParser.parser(SalesContract.class).parse(new FileInputStream(scFile));
+        // 错误检查
+        List<SalesContract> errList = scList.stream().filter(sc -> sc.getExcelBeanErrorMsg() != null).toList();
+        if (!errList.isEmpty()) {
+            errList.forEach(sc -> {
+                System.out.println(sc.getExcelBeanErrorMsg());
+            });
+            return;
+        }
 
         var userFile = inDir + userExcel;
         List<User> userList = ExcelParser.parser(User.class).parse(new FileInputStream(userFile));
