@@ -100,7 +100,7 @@ public class PurchaseOrder {
 
     private Integer isLast = 1;
 
-    private Integer versionSn = 0;
+    private Integer isLastValid = 1;
 
     private LocalDateTime effectTime;
 
