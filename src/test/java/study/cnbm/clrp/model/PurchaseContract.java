@@ -143,6 +143,8 @@ public class PurchaseContract implements ExcelParseEntity {
     @ExcelColumn(value = "审批生效时间")
     private LocalDateTime effectTime;
 
+    private String approvalPid = "";
+
     private String needArchive;
 
     @ExcelColumn("采购确认单编号")

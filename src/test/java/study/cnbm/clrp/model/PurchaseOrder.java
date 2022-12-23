@@ -104,6 +104,8 @@ public class PurchaseOrder {
 
     private LocalDateTime effectTime;
 
+    private String approvalPid = "";
+
     // 项目名称
     private String projectName;
 
