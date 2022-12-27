@@ -75,19 +75,30 @@ class NumericField extends FieldSpec {
 
     int defaultScale; // 不同类型
 
-    int intPrec; // 整数位数
+    Integer intPrec; // 整数位数
 
-    long intPrecLimit;
+    Integer decPrec; // 小数位数
+
+    Long intPrecLimit; // 当指定整数位数时，该值是整数范围上限
 
     @Override
     void specifyField(ExcelEntity excelAnno, ExcelColumn colAnno) {
-        if (precision < 0) { // 注解的赋值无效
+        if (precision > 0) {
+            if (scale < 0) {
+                intPrec = precision;
+            } else {
+                intPrec = precision - scale;
+            }
+        }
+        if (precision <= 0) { // 注解的赋值无效
             precision = defaultPrecision;
         }
         if (scale < 0) {
             scale = defaultScale;
+            intPrec = precision;
+        } else {
+            intPrec = precision - scale;
         }
-        intPrec = precision - scale;
         intPrecLimit = ((Double)Math.pow(10, intPrec)).longValue();
     }
 
@@ -103,36 +114,31 @@ class NumericField extends FieldSpec {
         if (av == lv) return true; // 没有小数部分
 
         var fv = av - lv;
-        var bd = new BigDecimal(fv).setScale(scale + 2, RoundingMode.HALF_UP).stripTrailingZeros(); // 舍掉长尾小数
+        var bd = new BigDecimal(fv).setScale(scale + 3, RoundingMode.HALF_UP).stripTrailingZeros(); // 舍掉长尾小数
         var fs = String.valueOf(bd).substring(2); // 小数部分的字符串表示
         return fs.length() <= scale;
     }
 }
 
 class IntegerNumField extends NumericField {
-    @Override
-    void specifyField(ExcelEntity excelAnno, ExcelColumn colAnno) {
-        defaultPrecision = 9;
-        super.specifyField(excelAnno, colAnno);
-    }
 
     ExcelColumnError.ErrorType checkValue(Long value) {
-        if (value != null) {
-            if (!checkIntPrec(value)) return ExcelColumnError.ErrorType.INTEGER_PRECISION;
+        if (!checkIntPrec(value)) {
+            return ExcelColumnError.ErrorType.INTEGER_PRECISION;
         }
         return null;
     }
 
-    IntegerNumBuilder<IntegerNumField, ? extends Number> newBuilder() {
-        IntegerNumBuilder<IntegerNumField, ? extends Number> builder;
-        if (fieldType == Integer.class) {
-            builder = new IntegerBuilder();
-        } else {
-            builder = new LongBuilder();
-        }
-        builder.spec = this;
-        return builder;
-    }
+//    IntegerNumBuilder<IntegerNumField, ? extends Number> newBuilder() {
+//        IntegerNumBuilder<IntegerNumField, ? extends Number> builder;
+//        if (fieldType == Integer.class) {
+//            builder = new IntegerBuilder();
+//        } else {
+//            builder = new LongBuilder();
+//        }
+//        builder.spec = this;
+//        return builder;
+//    }
 }
 
 class IntegerNumBuilder<S extends IntegerNumField, V extends Number> extends FieldBuilder<S, V> {
@@ -153,25 +159,54 @@ class IntegerNumBuilder<S extends IntegerNumField, V extends Number> extends Fie
                 try {
                     longValue = Long.parseLong(str);
                 } catch (NumberFormatException e) {
+                    // 输入的数字位数超过整型范围，也会报这个错。最好声明 precision
                     addError(ExcelColumnError.ErrorType.NUMBER_FORMAT);
                     return;
                 }
             }
         }
-        var errorType = spec.checkValue(longValue);
-        if (errorType != null) {
-            addError(errorType);
+        if (longValue != null) {
+            var errorType = spec.checkValue(longValue);
+            if (errorType != null) {
+                addError(errorType);
+            }
         }
     }
 }
 
-class LongBuilder extends IntegerNumBuilder<IntegerNumField, Long> {
+class LongField extends IntegerNumField {
+    @Override
+    void specifyField(ExcelEntity excelAnno, ExcelColumn colAnno) {
+        defaultPrecision = 18;
+        super.specifyField(excelAnno, colAnno);
+    }
+
+    @Override
+    LongBuilder newBuilder() {
+        return new LongBuilder();
+    }
+}
+
+class LongBuilder extends IntegerNumBuilder<LongField, Long> {
     Long getValue() {
         return longValue;
     }
 }
 
-class IntegerBuilder extends IntegerNumBuilder<IntegerNumField, Integer> {
+class IntegerField extends IntegerNumField {
+    @Override
+    void specifyField(ExcelEntity excelAnno, ExcelColumn colAnno) {
+        defaultPrecision = 9;
+        super.specifyField(excelAnno, colAnno);
+    }
+
+    @Override
+    IntegerBuilder newBuilder() {
+        return new IntegerBuilder();
+    }
+}
+
+class IntegerBuilder extends IntegerNumBuilder<IntegerField, Integer> {
     void parseCellValue() {
         super.parseCellValue();
 

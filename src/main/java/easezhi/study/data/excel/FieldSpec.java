@@ -39,15 +39,16 @@ class FieldSpec {
 
     void specifyField(ExcelEntity excelAnno, ExcelColumn colAnno) {}
 
-    final FieldBuilder<? extends FieldSpec, ?> builder(Object bean, ExcelBeanError beanError, Cell cell) {
+    final FieldBuilder<FieldSpec, ?> builder(Object bean, ExcelBeanError beanError, Cell cell) {
         var builder = newBuilder();
         builder.bean = bean;
         builder.beanError = beanError;
         builder.cell = cell;
+        builder.spec = this;
         return builder;
     }
 
-    FieldBuilder<? extends FieldSpec, ?> newBuilder() {
+    <S extends FieldSpec> FieldBuilder<S, ?> newBuilder() {
         return null;
     }
 
