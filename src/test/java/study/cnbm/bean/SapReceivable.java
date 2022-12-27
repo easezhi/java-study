@@ -48,7 +48,7 @@ public class SapReceivable implements ExcelParseEntity {
     private String deptName;
 
 //    @ExcelColumn("销售员账号")
-//    private String saleAccount;
+    private String saleAccount;
 
 //    @ExcelColumn("销售员姓名")
     @ExcelColumn("ZEPERNR_NAME")
@@ -83,4 +83,8 @@ public class SapReceivable implements ExcelParseEntity {
     private SqlFunNameEnum createTime = SqlFunNameEnum.CURRENT_TIMESTAMP;
 
     private SqlFunNameEnum updateTime = SqlFunNameEnum.CURRENT_TIMESTAMP;
+
+    private String updateBy;
+
+    private String createBy;
 }
