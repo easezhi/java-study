@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -97,6 +98,8 @@ public class ExcelParser <E extends ExcelParseEntity> {
             fieldSpecs = buildFieldSpecsByColumnName(titleRow);
         } else if (columnMapType == ExcelColumnMapType.COLUMN_INDEX) {
             fieldSpecs = buildFieldSpecsByColumnIndex(titleRow);
+        } else if (columnMapType == ExcelColumnMapType.TITLE_LIST && checkTitle) {
+            checkTitleList(titleRow);
         }
 
         int totalRow = sheet.getLastRowNum();
@@ -199,5 +202,23 @@ public class ExcelParser <E extends ExcelParseEntity> {
             }
         }
         return -1;
+    }
+
+    void checkTitleList(Row titleRow) throws Exception {
+        boolean checked = true;
+        try {
+            for (int i = 0; i < titles.length; i++) {
+                if (!titles[i].equals(titleRow.getCell(i).getStringCellValue().trim())) {
+                    checked = false;
+                    System.out.println("表头检查有误：" + titles[i]);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(Arrays.toString(e.getStackTrace()));
+            checked = false;
+        }
+        if (!checked) {
+            throw new RuntimeException("模板表头检查有误");
+        }
     }
 }
