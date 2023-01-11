@@ -5,6 +5,7 @@ import easezhi.study.data.excel.ExcelParser;
 import easezhi.study.data.excel.ExcelUtil;
 import easezhi.study.datastructure.CollectionUtil;
 import easezhi.study.io.FileUtil;
+import easezhi.study.lang.date.DateCalcu;
 import org.junit.Test;
 import study.cnbm.bean.User;
 import study.cnbm.clrp.model.*;
@@ -15,8 +16,8 @@ import java.util.*;
 
 public class ClrpImport {
     int sqlBatch = 5000;
-    String inDir = "D:\\cnbm-work\\基石存储核心业务单据\\520原始单据\\";
-    String outDir = "D:\\cnbm-work\\基石存储核心业务单据\\520数据\\";
+    String inDir = "D:\\cnbm-work\\文本收寄230111\\360原始单据\\";
+    String outDir = "D:\\cnbm-work\\文本收寄230111\\360数据\\";
     String salesContractExcel = "销售合同.xlsx";
     String purchaseContractExcel = "采购合同.xlsx";
     String purchaseOrderExcel = "采购订单.xlsx";
@@ -259,6 +260,12 @@ public class ClrpImport {
         List<Protocol> protocolList = ExcelParser.parser(Protocol.class).parse(new FileInputStream(ptFile));
         System.out.printf("共有协议%d行\n", protocolList.size());
 
+        // 230111 没填商务的历史单据，归档业务只要二期项目上线以后的
+        var date = LocalDateTime.of(2023, 1, 6, 0, 0);
+        protocolList = protocolList.stream().filter((protocol -> {
+            return DateCalcu.timeGt(protocol.getEffectTime(), date) || DateCalcu.timeGt(protocol.getEditTime(), date);
+        })).toList();
+
         // 检出已作废，要单独生成带后缀的
         List<ContractOrder> contractOrderList = new ArrayList<>(protocolList.size() + 200);
         Map<String, Protocol> protocolMap = new HashMap<>(); // 每个已作废协议的最新版本
@@ -297,7 +304,7 @@ public class ClrpImport {
         }
 
         // 过滤掉商务人员无值的
-        contractOrderList = contractOrderList.stream().filter(e -> e.getContractBusinessMan() != null).toList();
+//        contractOrderList = contractOrderList.stream().filter(e -> e.getContractBusinessMan() != null).toList();
         contractOrderList.forEach(contractOrder -> {
             if (contractOrder.getContractCustomerName() == null) {
                 contractOrder.setContractCustomerName(""); // 客户null值影响收寄业务查询
