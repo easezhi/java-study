@@ -25,14 +25,14 @@ public class FastjsonTest {
     @Test
     public void testJson() {
         String jsonStr = """
-            {"dz":"2022-06-21T06:21:10.862Z", "name":"xx", "sib":{"name":"qq"}}
+            {"dz":"2022-06-21T06:21:10.862Z", "name":"xx", "sib":{"name":"qq"}, "birth":"2023-01-01"}
             """;
         TmpModel model = JSON.parseObject(jsonStr, TmpModel.class);
         System.out.println(model);
         System.out.println(model.getDz());
         System.out.println(model.getDz().withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
 //        System.out.println(model.getDoff().toLocalDateTime());
-        System.out.println(model.getSib());
+        System.out.println(model.getBirth());
     }
 
     @Test
@@ -51,6 +51,9 @@ public class FastjsonTest {
 class TmpModel{
     @JSONField(format = "yyyy-MM-ddTHH:mm:ss.sss")
     LocalDateTime dd;
+
+    @JSONField(format = "yyyy-MM")
+    LocalDate birth;
 
     ZonedDateTime dz;
 
