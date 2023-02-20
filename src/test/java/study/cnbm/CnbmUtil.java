@@ -17,9 +17,9 @@ public class CnbmUtil {
             DELETE FROM public.sys_dict_detail WHERE dict_id = dictIdSql;
             DELETE FROM public.sys_dict WHERE "name" = 'dictCode';
 
-            INSERT INTO public.sys_dict ("name", description, create_by, update_by, create_time, update_time, is_del) VALUES
-              ('dictCode', 'dictDesc', 'admin_yw', 'admin_yw', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false);
-            INSERT INTO public.sys_dict_detail (dict_id, "label", value, dict_sort, create_by, update_by, create_time, update_time, is_del, enabled) VALUES
+            INSERT INTO public.sys_dict ("name", description, create_by, update_by, create_time, update_time, is_del, tenant_id) VALUES
+              ('dictCode', 'dictDesc', 'admin_yw', 'admin_yw', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false, 1000);
+            INSERT INTO public.sys_dict_detail (dict_id, "label", value, dict_sort, create_by, update_by, create_time, update_time, is_del, enabled, tenant_id) VALUES
             """
             .replaceAll("dictIdSql", dictIdSql)
             .replaceAll("dictCode", dictCode)
@@ -31,7 +31,7 @@ public class CnbmUtil {
             var detail = details.get(i);
             int sort = i + 1;
             var detailSql = """
-                (dictIdSql, 'detailLabel', 'detailValue', detailSort, 'admin_yw', 'admin_yw', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false, true)"""
+                (dictIdSql, 'detailLabel', 'detailValue', detailSort, 'admin_yw', 'admin_yw', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false, true, 1000)"""
                 .replace("dictIdSql", dictIdSql)
                 .replace("detailLabel", detail.getLabel())
                 .replace("detailValue", detail.getValue())
