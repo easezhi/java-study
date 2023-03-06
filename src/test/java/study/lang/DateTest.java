@@ -44,4 +44,13 @@ public class DateTest {
         System.out.println(d2.equals(null));
 //        System.out.println(d2.compareTo(null)); // 不能是 null
     }
+
+    @Test
+    public void testCalcu() {
+        var now = LocalDate.now();
+        var first = now.withDayOfMonth(1);
+        System.out.println(now);
+        System.out.println(first);
+        System.out.println("日期只读，修改某段会生成新的日期对象");
+    }
 }

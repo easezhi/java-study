@@ -1,9 +1,7 @@
 package easezhi.study.datastructure;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class ListUtil {
@@ -58,6 +56,13 @@ public class ListUtil {
         return rst;
     }
 
+    /**
+     * 列表分组
+     * @param beanList 待分组大列表
+     * @param batch 每组数量
+     * @return 分组后的小列表的列表
+     * @param <T> 元素类型
+     */
     public static <T> List<List<T>> partition(List<T> beanList, int batch) {
         var batchList = new ArrayList<List<T>>();
         int total = beanList.size();
@@ -67,5 +72,31 @@ public class ListUtil {
             batchList.add(beanList.subList(i, j));
         }
         return batchList;
+    }
+
+    /**
+     * 根据指定的键、值字段，把源单据中的值赋值到对应目标单据中
+     * 目标单据与源单据键字段值相等即存在对应关系
+     * @param tarList 待填充值的目标单据列表
+     * @param tarKeyGetter 目标单据键字段getter
+     * @param tarValueSetter 目标单据值字段setter
+     * @param srcList 提供值的源单据列表
+     * @param srcKeyGetter 源单据键字段getter
+     * @param srcValueGetter 源单据值字段getter
+     * @param <T> 目标单据类型
+     * @param <S> 源单据类型
+     * @param <K> 键字段的类型
+     * @param <V> 值字段的类型
+     */
+    public static <T, S, K, V> void refillValue(List<T> tarList, Function<T, K> tarKeyGetter, BiConsumer<T, V> tarValueSetter,
+                                                List<S> srcList, Function<S, K> srcKeyGetter, Function<S, V> srcValueGetter) {
+        Map<K, V> valueMap = new HashMap<>();
+        srcList.forEach(src -> valueMap.put(srcKeyGetter.apply(src), srcValueGetter.apply(src)));
+        tarList.forEach(tar -> {
+            K key = tarKeyGetter.apply(tar);
+            if (valueMap.containsKey(key)) {
+                tarValueSetter.accept(tar, valueMap.get(key));
+            }
+        });
     }
 }
