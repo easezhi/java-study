@@ -8,6 +8,7 @@ import org.junit.Test;
 import study.sede.model.PersonGenericDto;
 import study.sede.model.PersonListDto;
 
+import java.math.BigDecimal;
 import java.time.*;
 
 import static org.junit.Assert.*;
@@ -25,12 +26,12 @@ public class FastjsonTest {
     @Test
     public void testJson() {
         String jsonStr = """
-            {"dz":"2022-06-21T06:21:10.862Z", "name":"xx", "sib":{"name":"qq"}, "birth":"2023-01-01"}
+            {"dz":"2022-06-21T06:21:10.862Z", "name":"xx", "birth":"2023-01-01 10:20:11", "amt": "1122.3"}
             """;
         TmpModel model = JSON.parseObject(jsonStr, TmpModel.class);
         System.out.println(model);
-        System.out.println(model.getDz());
-        System.out.println(model.getDz().withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
+        System.out.println(model.getDd());
+//        System.out.println(model.getDz().withZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime());
 //        System.out.println(model.getDoff().toLocalDateTime());
         System.out.println(model.getBirth());
     }
@@ -49,10 +50,10 @@ public class FastjsonTest {
 
 @Data
 class TmpModel{
-    @JSONField(format = "yyyy-MM-ddTHH:mm:ss.sss")
+    @JSONField(format = "yyyy-MM-ddTHH:mm:ss")
     LocalDateTime dd;
 
-    @JSONField(format = "yyyy-MM")
+    @JSONField(format = "yyyy-MM-dd HH:mm:ss")
     LocalDate birth;
 
     ZonedDateTime dz;
@@ -62,4 +63,6 @@ class TmpModel{
     String name;
 
     TmpModel sib;
+
+    BigDecimal amt;
 }
