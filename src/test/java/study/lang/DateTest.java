@@ -14,13 +14,16 @@ public class DateTest {
 
     @Test
     public void testParse() {
+        // pattern 必需与待解析的文本匹配，也不能有多余的字符
+        // LocalDate 对象年月日必需有值，如果待解析文本中缺某段，需要通过 parseDefaulting 指定默认值
         DateTimeFormatter formatter = new DateTimeFormatterBuilder()
-            .append(DateTimeFormatter.ofPattern("yyyy-MM"))
+            .append(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
             .parseDefaulting(ChronoField.DAY_OF_MONTH, 1)
             .toFormatter();
 
-        System.out.println(LocalDate.parse("2022-01", formatter));
-        System.out.println(LocalDate.parse("2023-02-23").format(formatter));
+        System.out.println(LocalDate.parse("2022-01-12 12:23", formatter));
+//        System.out.println(LocalDate.parse("2023-02-23").format(formatter));
+//        System.out.println(LocalDate.parse("2023-02-23 10:12").format(formatter)); // 抛异常
     }
 
     @Test
