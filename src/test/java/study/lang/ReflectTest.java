@@ -13,6 +13,15 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class ReflectTest {
+
+    @Test
+    public void test() {
+        var clazz = Father.class;
+        var fa = new Father();
+        var clazz2 = fa.getClass();
+        System.out.println(clazz2 == clazz);
+    }
+
     @Test
     public void testField() throws NoSuchFieldException {
         Field[] decFields = Son.class.getDeclaredFields();

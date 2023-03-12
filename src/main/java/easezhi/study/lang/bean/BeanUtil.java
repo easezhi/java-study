@@ -1,7 +1,10 @@
 package easezhi.study.lang.bean;
 
+import easezhi.study.lang.SFunction;
 import org.springframework.beans.BeanUtils;
 
+import java.beans.Introspector;
+import java.lang.invoke.SerializedLambda;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -21,6 +24,25 @@ public class BeanUtil {
             return "";
         }
         return accessorName.substring(3, 4).toLowerCase() + accessorName.substring(4);
+    }
+
+    /**
+     * 解析方法引用，得到方法对应的属性名
+     * @param lambda 方法引用
+     * @return 属性名
+     * @param <T> 方法所属的类
+     * @param <R> 方法返回值类型
+     */
+    public static <T, R> String getPropertyName(SFunction<T, R> lambda) {
+        try {
+            Method writeReplace = lambda.getClass().getDeclaredMethod("writeReplace");
+            writeReplace.setAccessible(true);
+            var sLambda = (SerializedLambda) writeReplace.invoke(lambda);
+            var getterName = sLambda.getImplMethodName();
+            return Introspector.decapitalize(getterName.substring(3));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /*

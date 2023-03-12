@@ -1,15 +1,12 @@
 package study.cnbm;
 
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.PropertyNamingStrategy;
-import com.alibaba.fastjson2.annotation.JSONType;
 import easezhi.study.data.excel.ExcelBuilder;
 import easezhi.study.io.http.SpringRest;
-import lombok.Data;
 import org.junit.Test;
 import study.cnbm.bean.Material;
-import study.cnbm.sap.ViewQueryParam;
-import study.cnbm.sap.ViewQueryResult;
+import study.cnbm.sap.viewquery.ViewQueryParam;
+import study.cnbm.sap.viewquery.ViewQueryResult;
 
 import java.io.FileOutputStream;
 
